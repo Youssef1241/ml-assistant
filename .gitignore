@@ -1,2 +1,8 @@
 .env
 that.command
+.cursor
+test.py
+.directory
+report.md
+images
+datasets
