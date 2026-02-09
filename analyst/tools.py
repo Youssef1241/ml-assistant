@@ -29,7 +29,7 @@ def analyse_data(data: str) -> str:
     os.makedirs("images", exist_ok=True)
     plt.savefig("images/label_pie_chart.png");
 
-    output_string+="\n\n"
+    output_string+="\n\nNull Values\n"
     output_string+=df.isnull().sum().to_string()
 
     plt.figure(figsize=(6,6))

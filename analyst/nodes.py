@@ -1,9 +1,8 @@
 from langchain.messages import SystemMessage
-from langchain.messages import ToolMessage
-from analyst.tools import tools_by_name, model_with_tools
+from analyst.tools import model_with_tools
 
 
-def llm_call(state: dict):
+def analyst_call(state: dict):
     """LLM decides whether to call a tool or not"""
 
     return {
@@ -27,13 +26,3 @@ def llm_call(state: dict):
         "llm_calls": state.get('llm_calls', 0) + 1
     }
 
-
-def tool_node(state: dict):
-    """Performs the tool call"""
-
-    result = []
-    for tool_call in state["messages"][-1].tool_calls:
-        tool = tools_by_name[tool_call["name"]]
-        observation = tool.invoke(tool_call["args"])
-        result.append(ToolMessage(content=str(observation), tool_call_id=tool_call["id"]))
-    return {"messages": result}
