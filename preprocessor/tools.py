@@ -56,10 +56,10 @@ def drop_all_rows(data: str, column_name: str) -> str:
     except Exception as e:
         return f"Error dropping rows for column '{column_name}': {e}"
 
-@tool
-def ask_user(question: str) -> str:
-    """Prompt the user"""
-    return question
+# @tool
+# def ask_user(question: str) -> str:
+#     """Prompt the user"""
+#     return question
 
 
 tools = [replace_with_avg, drop_column, drop_all_rows]

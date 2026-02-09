@@ -14,16 +14,13 @@ class MessagesState(TypedDict):
 
 def should_continue_with_user(state: MessagesState) -> Literal["tool_node", END]:
     """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
+
     messages = state["messages"]
     last_message = messages[-1]
 
     # If the LLM makes a tool call, then perform an action
     if last_message.tool_calls:
-        name = last_message.tool_calls[0]["name"]
-        if name == "ask_user":
-            return "user_input"
-        else:
-            return "preprocessor_tools"
+        return "preprocessor_tools"
 
     # Otherwise, we stop (reply to the user)
     return END
