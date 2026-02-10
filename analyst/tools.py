@@ -4,6 +4,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import seaborn as sns
+import json
 
 @tool
 def analyse_data(data: str) -> str:
@@ -55,4 +56,7 @@ def analyse_data(data: str) -> str:
 
 tools = [analyse_data]
 tools_by_name = {tool.name: tool for tool in tools}
+
+
 model_with_tools = model.bind_tools(tools)
+

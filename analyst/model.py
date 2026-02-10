@@ -1,7 +1,13 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
+from dotenv import load_dotenv
+import os
+import json
+load_dotenv()
+
+
 
 model = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+    model=os.environ.get("MODEL_NAME"),
     temperature=1.0, 
     max_tokens=None,
     timeout=None,

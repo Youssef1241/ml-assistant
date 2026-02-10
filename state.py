@@ -12,7 +12,7 @@ class MessagesState(TypedDict):
     messages: Annotated[list[AnyMessage], operator.add]
     llm_calls: int
 
-def should_continue_with_user(state: MessagesState) -> Literal["tool_node", END]:
+def preprocessor_should_continue(state: MessagesState) -> Literal["preprocessor_tools","user_input", END]:
     """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
 
     messages = state["messages"]
@@ -20,12 +20,19 @@ def should_continue_with_user(state: MessagesState) -> Literal["tool_node", END]
 
     # If the LLM makes a tool call, then perform an action
     if last_message.tool_calls:
-        return "preprocessor_tools"
+        name = last_message.tool_calls[0]["name"]
+        if name == "ask_user":
+            return "user_input"
+        else:
+            return "preprocessor_tools"
 
-    # Otherwise, we stop (reply to the user)
+    # If the LLM asked a question directly (no tool call), still route to user input.
+    if getattr(last_message, "content", "") and "?" in last_message.content:
+        return "user_input"
+
     return END
 
-def should_continue(state: MessagesState) -> Literal["tool_node", END]:
+def should_continue(state: MessagesState) -> Literal["analyst_tools", END]:
     """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
 
     messages = state["messages"]
@@ -35,7 +42,6 @@ def should_continue(state: MessagesState) -> Literal["tool_node", END]:
     if last_message.tool_calls:
         return "analyst_tools"
 
-    # Otherwise, we stop (reply to the user)
     return "preprocessor"
 
 def make_tool_node(tools_by_name):
@@ -58,9 +64,14 @@ def make_tool_node(tools_by_name):
 
 def ask_user_node(state):
     last = state["messages"][-1]
-    question = last.tool_calls[0]["args"].get("question", "Provide input:")
-    print("\nLLM: ",question)
-    user_answer = interrupt(question)
+    if last.tool_calls:
+        question = last.tool_calls[0]["args"].get("question", "Provide input:")
+    else:
+        # Fallback when the model asked directly in assistant content.
+        question = last.content or "Provide input:"
+    print("\nLLM: ", question)
+    
+    user_answer = interrupt("Your response: ")
     return {
         "messages": [HumanMessage(content=user_answer)]
     }

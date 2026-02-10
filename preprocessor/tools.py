@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import seaborn as sns
+from preprocessor.model import model
 
 @tool
 def replace_with_avg(data: str, column_name: str) -> str:
@@ -56,11 +57,12 @@ def drop_all_rows(data: str, column_name: str) -> str:
     except Exception as e:
         return f"Error dropping rows for column '{column_name}': {e}"
 
-# @tool
-# def ask_user(question: str) -> str:
-#     """Prompt the user"""
-#     return question
+@tool
+def ask_user(question: str) -> str:
+    """Prompt the user"""
+    return question
 
 
-tools = [replace_with_avg, drop_column, drop_all_rows]
+tools = [replace_with_avg, drop_column, drop_all_rows, ask_user]
 tools_by_name = {tool.name: tool for tool in tools}
+model_with_tools = model.bind_tools(tools)

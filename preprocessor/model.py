@@ -1,36 +1,11 @@
-from langchain.agents.middleware.types import AgentState
-
-
-from typing import Any
-
-
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.agents import create_agent
-from preprocessor.tools import tools
-from langgraph.checkpoint.memory import InMemorySaver
-from langchain.agents.middleware import HumanInTheLoopMiddleware
-
-gemini_model = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+from dotenv import load_dotenv
+import os
+load_dotenv()
+model = ChatGoogleGenerativeAI(
+    model=os.environ.get("MODEL_NAME"),
     temperature=1.0, 
     max_tokens=None,
     timeout=None,
     max_retries=2,
-)
-
-tools = [
-      {"name": "replace_with_avg", "description": "Replace null values in a column with the average value for that column."},
-      {"name": "drop_column", "description": "Drop a column from the dataset."},
-      {"name": "drop_all_rows", "description": "Drop all rows that contain a null value in the specified column."},
-]
-
-model_with_tools = create_agent(
-    model = gemini_model,
-    tools = tools,
-    middleware=[
-        HumanInTheLoopMiddleware( 
-            interrupt_on={tool["name"]: True for tool in tools}
-        ),
-    ],
-    checkpointer=InMemorySaver(),
 )
