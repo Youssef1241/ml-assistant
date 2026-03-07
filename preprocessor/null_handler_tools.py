@@ -3,7 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import os
 import seaborn as sns
-from preprocessor.model import model
+from preprocessor.model import model, struct_model
+
 
 @tool
 def replace_with_avg(data: str, column_name: str) -> str:
@@ -56,6 +57,15 @@ def drop_all_rows(data: str, column_name: str) -> str:
         return f"Dropped {rows_removed} rows with null values in column '{column_name}'."
     except Exception as e:
         return f"Error dropping rows for column '{column_name}': {e}"
+
+@tool
+def extract_options() -> dict:
+    """Extract recommendations and options from analysis"""
+
+    struct_model.invoke(
+        f"""You are an expert information extractor, your task is to extract from the given context a dict in this format: {{column_name}}"""
+        )
+
 
 @tool
 def ask_user(question: str) -> str:

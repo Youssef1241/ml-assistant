@@ -6,4 +6,5 @@ test.py
 report.md
 images
 datasets
-__pycache__/
+/__pycache__/
+*.pyc
