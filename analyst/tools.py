@@ -5,12 +5,15 @@ import matplotlib.pyplot as plt
 import os
 import seaborn as sns
 import json
+from dotenv import load_dotenv
 
+load_dotenv()
 @tool
-def analyse_data(data: str) -> str:
+def analyse_data() -> str:
     """Analyse the data and return a summary"""
     output_string =""
-    df = pd.read_csv(data)
+    data_path = os.environ.get("DATA_PATH")
+    df = pd.read_csv(data_path)
 
     output_string += df.head().to_string()
     output_string += "\n\n"

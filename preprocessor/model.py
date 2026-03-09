@@ -21,14 +21,15 @@ small_model = ChatGoogleGenerativeAI(
     max_retries=2,
 )
 
-from typing import Dict, Union
-from pydantic import BaseModel, RootModel
+from typing import List, Dict
+from pydantic import BaseModel
 
-class ValueType(RootModel[Dict[str, int]]):
-    pass
 
 class Options(BaseModel):
-    recommendations: Dict[str, Union[int, ValueType]]
+    reasoning: str
+    actions: Dict[str, List[str]]
 
+class Prompts(BaseModel):
+    prompts: List[str]
 
 struct_model = small_model.with_structured_output(Options)

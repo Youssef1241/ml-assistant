@@ -11,6 +11,10 @@ from langchain.messages import ToolMessage, HumanMessage
 class MessagesState(TypedDict):
     messages: Annotated[list[AnyMessage], operator.add]
     llm_calls: int
+    struct: dict
+    analysis: dict
+    user_choice: dict
+    update: dict
 
 def preprocessor_should_continue(state: MessagesState) -> Literal["preprocessor_tools","user_input", END]:
     """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""

@@ -59,7 +59,7 @@ config = {
     }
 }
 
-messages = [SystemMessage(content="dataset address: \"datasets/Titanic-Dataset.csv\""), HumanMessage(content="Analyze the data")]
+messages = [SystemMessage(content="start your task"), HumanMessage(content="Analyze the data")]
 
 print("Starting agent stream...")
 print("=" * 50)

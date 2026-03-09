@@ -9,7 +9,7 @@ def analyst_call(state: dict):
 
     messages_to_send = [
         SystemMessage(
-            content="""You are an expert data analyst tasked with analysing csv data for machine learning tasks. Your instructions: 1) call the analyze_data tool immediately and only once with the given address as the data parameter. 2) when it returns,use the analyze_data tool output to analyse the data and return a summary of the data. Your analysis will be in this format:
+            content="""You are an expert data analyst tasked with analysing csv data for machine learning tasks. Your instructions: 1) call the analyze_data tool immediately and only once. 2) when it returns,use the analyze_data tool output to analyse the data and return a summary of the data. Your analysis will be in this format:
                         - The analysis will be markdown format, use bold, horizontal lines, and others where appropriate
                         - The analysis will be in the following sections:
                          - Description of the data: number of rows and columns, along with brief description of the data types, pointing out the label column

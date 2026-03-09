@@ -8,3 +8,6 @@ images
 datasets
 /__pycache__/
 *.pyc
+pickles
+simple_test.ipynb
+test.json

@@ -1,23 +1,56 @@
-from  preprocessor.null_handler_tools import tools_by_name
-from preprocessor.model import Options
+from preprocessor.model import Options, Prompts
+import os
+import pandas as pd
+from dotenv import load_dotenv
+load_dotenv()
+
+def return_null_values() -> str:
+    output_string = ""
+    data_path = os.environ.get("DATA_PATH")
+    df = pd.read_csv(data_path)
+    output_string += "Context: \n\n"
+    output_string += df.describe().to_string()
+    output_string+="\n\nNull Values\n\n"
+    output_string+=df.isnull().sum().to_string()
+    return output_string
+
+
 null_handler_config = {
     "analysis_prompt": 
-        """You are an expert data preprocessor and handler tasked with recommending and performing data handling tasks on behalf of a user. Your instructions: 
-                        - Examine the columns with null data from the null values section in the given context.
-                        - For each column with nulls recommend an action either to replace with average value, drop all rows with null for this column, or drop the column entirely. This will be based on the data provided.
-                        - Based on what the user says you will call either the drop_all_rows, drop_column, or replace_with_avg with the column name as the column_name argument and the dataset address in the data argument
-                        - You MUST call the ask_user tool for each user question. Do not ask directly in assistant content.
-                            When taking an action, call exactly one of: replace_with_avg, drop_column, drop_all_rows.
+        """
+        Context: 
 
-                        Steps: 
-                        1- Examine first column data
-                        2- query user using ask_user tool giving your query in the question argument. Your query will 1. inform the user of the state of nulls in the column, 2. Recommend an action for the user and ask their choice
-                        3- call the tool that corresponds to the user's response
-                        4- Repeat for the following columns with nulls
+        {context}
+        ---
 
-                        """,
-    "schema": Options,
-    "tools": tools_by_name,
+        You are part of a team conducting a machine learning pipeline for a user, your task is to look at the context provided and return a list of prompts for the user
+
+        you will generate a prompt for the user for every key in the context, (except reasoning).
+        Your prompt will include the column names, the possible actions for the user (drop column, drop null rows, replace with average), as well as the given recommendation and the reasoning behind it.
+
+        in the given context the key is the recommendation, there are three possible recommendations: drop the entire column, drop only the null rows, replace the null with average value, you will return one prompt for each key, that is a list of three prompts
+
+        You will use markdown for good stylization and professional language in your answers.
+        """,
+    "struct_schema": Options,
+    "analysis_schema": Prompts,
     "struct_prompt": """
-    """
+    You are an expert data preprocessor and handler tasked with recommending and performing data handling tasks on behalf of a user. Your instructions: 
+        - Examine the columns with null data from the given context.
+        - For each column with nulls recommend an action either to
+            - drop_column: drop the entire column from the dataset
+            - drop_rows: drop only the null rows in the dataset
+            - fill_with_average: fill the null values with average
+        
+        - Only create 3 keys in actions attributes. fill the values for the keys (drop_column, drop_rows, fill_with_average) with the appropriate column names in a list
+        - if there are no columns for an action just provide and empty list [] 
+        - you will also provide reasoning for your actions in the reasoning key
+        - Make sure to choose only numeric columns for replacing with average
+
+        Steps: 
+        1- Examine all column data
+        2- provide reasoning behind your action
+        3- group the columns by their recommendations
+    """,
+    "model_context": return_null_values()
 }
