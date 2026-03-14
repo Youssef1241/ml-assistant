@@ -32,4 +32,7 @@ class Options(BaseModel):
 class Prompts(BaseModel):
     prompts: List[str]
 
-struct_model = small_model.with_structured_output(Options)
+class FullPayload(BaseModel):
+    reasoning: str
+    actions: Dict[str, List[str]]
+    prompts: List[str]

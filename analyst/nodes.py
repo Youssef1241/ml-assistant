@@ -1,8 +1,9 @@
 from langchain.messages import SystemMessage
 from analyst.tools import model_with_tools
-import json
-import socket
-
+import os
+from dotenv import load_dotenv
+import pandas as pd
+load_dotenv()
 
 def analyst_call(state: dict):
     """LLM decides whether to call a tool or not"""
@@ -19,10 +20,8 @@ def analyst_call(state: dict):
                         """
         )
     ] + state["messages"]
-
     result = model_with_tools.invoke(messages_to_send)
     return {
         "messages": [result],
-        "llm_calls": state.get('llm_calls', 0) + 1
+        "llm_calls": state.get('llm_calls', 0) + 1,
     }
-
