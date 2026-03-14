@@ -246,6 +246,22 @@ def load_df(state):
             for key, value in all_stats.items()
             if value["type"] == "categorical"
         ]
+        numeric_stats = [
+            {"name": key,**value} 
+            for key, value in all_stats.items()
+            if value["type"] == "numeric"
+        ]
+        numeric_cols = [stat["name"] for stat in numeric_stats]
+        for i,col in enumerate(numeric_cols):
+            df = pd.read_csv(filepath, usecols=[col])
+            df = df.dropna()
+            q1, q3 = df.quantile(0.25), df.quantile(0.75)
+            iqr = q3 - q1
+            lower = q1 - 1.5 * iqr
+            upper = q3 + 1.5 * iqr
+            outlier_count = int(((df < lower) | (df > upper)).sum())
+            numeric_stats[i]["outlier_count"] = outlier_count
+
         return {
                 "n_rows": n_rows,
                 "n_cols (without target)": sum(len(g) for g in col_groups) - len(col_groups),
@@ -261,6 +277,7 @@ def load_df(state):
                 "Normalized Entropy": norm_entropy,
                 "is_imbalanced": is_imbalanced,
                 "categorical_stats": cat_stats,
+                "numeric_stats": numeric_stats,
             }
     data_path = state['df_info']['filepath']
     target_col = state['df_info']['target']

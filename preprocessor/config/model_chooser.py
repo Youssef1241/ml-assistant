@@ -12,6 +12,8 @@ models_config = {
 
             - You will fill actions attribute with only two keys: "True" and "False", True will contain your recommendations and False will contain the remaining options, copy the names exactly as given above
 
+            - you will also provide reasoning for your actions in the reasoning key
+
             - You will also create a prompt for the user (in the prompts attribute (just one string item in the list)) asking them to choose the models, while mentioning and explaining your recommendation
 
             - Use markdown for good stylization and professional language
