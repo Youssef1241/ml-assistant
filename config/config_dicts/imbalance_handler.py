@@ -11,10 +11,11 @@ from config.model import Options, Prompts,small_model, FullPayload
 
 load_dotenv()
 
-def calculate_imbalance_data(n_classes, total, counts):
+def calculate_imbalance_data( total, counts):
+    n_classes = len(counts)
     ir_threshold = 6
     entropy_threshold = 0.95
-    class_counts = np.array(list(counts.values()))
+    class_counts = np.array(list(counts.values))
     ir = float(round(class_counts.max() / class_counts.min(), 4))
     probs = class_counts / total
     norm_entropy = float(round(entropy(probs) / np.log(n_classes), 4))
