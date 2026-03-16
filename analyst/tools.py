@@ -14,8 +14,6 @@ def analyse_data(state: dict) -> str:
     """Analyse the data and return a summary"""
     output_string = prompt_generator(state, ['Sample Data','n_rows', 'n_cols (without target)', 'numeric_features', 'categorical_features', 'all_stats','Class Distributions','null_percentages', 'correlation_matrix'])
 
-
-
     os.makedirs("images", exist_ok=True)
     plt.figure(figsize=(6,6))
     plt.pie(state["df_info"]["class_dist"].values(), labels=state["df_info"]["class_dist"].keys(), autopct='%1.1f%%', startangle=90, colors=['skyblue', 'lightcoral'])

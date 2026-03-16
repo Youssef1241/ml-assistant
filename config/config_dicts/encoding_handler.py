@@ -1,4 +1,4 @@
-from preprocessor.model import Options, small_model, Prompts
+from config.model import Options, small_model, Prompts
 
 encoding_config = {
     "struct": 

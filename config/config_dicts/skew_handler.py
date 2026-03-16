@@ -1,4 +1,4 @@
-from preprocessor.model import small_model, FullPayload
+from config.model import small_model, FullPayload
 
 
 skew_config = {

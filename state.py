@@ -15,7 +15,7 @@ class MessagesState(TypedDict):
     struct: dict
     analysis: Annotated[list[dict], operator.add]
     user_choice: dict
-    update: Annotated[list[dict], operator.add]
+    update: dict
     subgraph: int
     original_df: dict
     df_dict: dict[str, pd.DataFrame]
@@ -145,11 +145,9 @@ def load_df(state):
         ]
         return rows_per_chunk, col_groups
 
-    def analyze_chunked(filepath, target_col, max_cells = 100_000):
-        from preprocessor.config.imbalance_handler import calculate_imbalance_data
+    def analyze_chunked(filepath, target_col, max_cells = 10_000_000):
         from collections import defaultdict
         from river import stats
-        
         rows_per_chunk, col_groups = get_chunk_dims(filepath, max_cells)
         col_groups = [
             list(set(group + [target_col]))
@@ -190,10 +188,10 @@ def load_df(state):
                         continue
 
                     group_numeric_stats[col].append({
-                        "mean": chunk[col].mean(),
-                        "min": chunk[col].min(),
-                        "max": chunk[col].max(),
-                        "n": len(chunk[col])
+                        "mean": float(chunk[col].mean()),
+                        "min": float(chunk[col].min()),
+                        "max": float(chunk[col].max()),
+                        "n": int(len(chunk[col]))
                     })
                     
                     clean_chunk = chunk[col].dropna()
@@ -227,56 +225,26 @@ def load_df(state):
                 }
             if group_null_counts is not None:
                 null_counts.update(group_null_counts.to_dict())
+
         class_dist = dict(class_dist)
-        corr_list = pd.concat(corr_list, axis=1)
-        corr_matrix = corr_list.corr()
-        corr_matrix = corr_matrix.dropna(axis=1, how='all')
-        corr_matrix = corr_matrix.dropna(axis=0, how='all')
-        head = pd.concat(head_list, axis=1)
-        ir, norm_entropy, is_imbalanced = calculate_imbalance_data(len(class_dist), n_rows, class_dist)
-        per_class = {
-        cls: {
-            "count": cnt,
-            "pct": round(cnt / sum(class_dist.values()) * 100,2)
-        }
-        for cls, cnt in class_dist.items()
-        }
-        cat_stats = [
-            {"name": key,**value} 
-            for key, value in all_stats.items()
-            if value["type"] == "categorical"
-        ]
-        numeric_stats = [
-            {"name": key,**value} 
-            for key, value in all_stats.items()
-            if value["type"] == "numeric"
-        ]
-        numeric_cols = [stat["name"] for stat in numeric_stats]
-        for i,col in enumerate(numeric_cols):
-            df = pd.read_csv(filepath, usecols=[col])
-            df = df.dropna()
-            q1, q3 = df.quantile(0.25), df.quantile(0.75)
-            iqr = q3 - q1
-            lower = q1 - 1.5 * iqr
-            upper = q3 + 1.5 * iqr
-            outlier_count = int(((df < lower) | (df > upper)).sum())
-            numeric_stats[i]["outlier_count"] = outlier_count
+        col_dicts = _create_col_dicts(head_list, n_rows, class_dist, all_stats, corr_list)
+        numeric_stats = _count_outliers(filepath, col_dicts["numeric_cols"], col_dicts["numeric_stats"])
 
         return {
                 "n_rows": n_rows,
                 "n_cols (without target)": sum(len(g) for g in col_groups) - len(col_groups),
-                "numeric_features": [c for c, s in all_stats.items() if s["type"] == "numeric"],
-                "categorical_features": [c for c, s in all_stats.items() if s["type"] == "categorical"],
+                "numeric_features": {len(numeric_stats): [c for c, s in all_stats.items() if s["type"] == "numeric"]},
+                "categorical_features": {len(col_dicts["cat_stats"]): [c for c, s in all_stats.items() if s["type"] == "categorical"]},
                 "null_counts": null_counts,
                 "null_percentages": {c: round(v/n_rows *100,2) for c, v in null_counts.items()},
                 "Dataset Description": all_stats,
-                "Class Distributions": per_class,
-                "imbalance_ratio": ir,
-                "correlation_matrix": corr_matrix.to_dict(),
-                "Sample Data": head.to_dict(),
-                "Normalized Entropy": norm_entropy,
-                "is_imbalanced": is_imbalanced,
-                "categorical_stats": cat_stats,
+                "Class Distributions": col_dicts["per_class"],
+                "imbalance_ratio": col_dicts["ir"],
+                "correlation_matrix": col_dicts["corr_matrix"].to_dict(),
+                "Sample Data": col_dicts["head"].to_dict(),
+                "Normalized Entropy": col_dicts["norm_entropy"],
+                "is_imbalanced": col_dicts["is_imbalanced"],
+                "categorical_stats": col_dicts["cat_stats"],
                 "numeric_stats": numeric_stats,
             }
     data_path = state['df_info']['filepath']
@@ -286,3 +254,54 @@ def load_df(state):
     return {
         "df_info": state['df_info'],
     }
+
+def _create_col_dicts(head_list, n_rows, class_dist, all_stats, corr_list):
+    from config.config_dicts.imbalance_handler import calculate_imbalance_data
+    corr_list = pd.concat(corr_list, axis=1)
+    corr_matrix = corr_list.corr()
+    corr_matrix = corr_matrix.dropna(axis=1, how='all')
+    corr_matrix = corr_matrix.dropna(axis=0, how='all')
+
+    head = pd.concat(head_list, axis=1)
+    ir, norm_entropy, is_imbalanced = calculate_imbalance_data(len(class_dist), n_rows, class_dist)
+    per_class = {
+    cls: {
+        "count": cnt,
+        "pct": round(cnt / sum(class_dist.values()) * 100,2)
+    }
+    for cls, cnt in class_dist.items()
+    }
+    cat_stats = [
+        {"name": key,**value} 
+        for key, value in all_stats.items()
+        if value["type"] == "categorical"
+    ]
+    numeric_stats = [
+        {"name": key,**value} 
+        for key, value in all_stats.items()
+        if value["type"] == "numeric"
+    ]
+    numeric_cols = [stat["name"] for stat in numeric_stats]
+    return {
+        "head": head,
+        "ir": ir,
+        "norm_entropy": norm_entropy ,
+        "is_imbalanced": is_imbalanced ,
+        "per_class": per_class ,
+        "cat_stats": cat_stats ,
+        "numeric_stats": numeric_stats ,
+        "numeric_cols": numeric_cols,
+        "corr_matrix": corr_matrix
+    }
+
+def _count_outliers(filepath, numeric_cols, numeric_stats):
+    for i,col in enumerate(numeric_cols):
+        df = pd.read_csv(filepath, usecols=[col])
+        df = df.dropna()
+        q1, q3 = df.quantile(0.25), df.quantile(0.75)
+        iqr = q3 - q1
+        lower = q1 - 1.5 * iqr
+        upper = q3 + 1.5 * iqr
+        outlier_count = int(((df < lower) | (df > upper)).sum())
+        numeric_stats[i]["outlier_count"] = outlier_count
+    return numeric_stats

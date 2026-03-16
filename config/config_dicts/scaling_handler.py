@@ -1,4 +1,4 @@
-from preprocessor.model import small_model, FullPayload
+from config.model import small_model, FullPayload
 
 
 skew_config = {
@@ -7,17 +7,18 @@ skew_config = {
         "prompt": """
         You are an expert data scientist and handler tasked with recommending scaling actions to a user based on the dataset
         Your instructions: 
-            - Examine the given data and recommend a scaling technique for the dataset
-
-            - You will fill actions attribute with two keys: True and False, True will contain your recommendation (a list of one string of the method), and False will contain the other option
+            - Examine the given data and recommend a scaling technique for the dataset for each model
 
             - You must choose between: ["StandardScaler", "RobustScaler"] or no scaling at all
 
-            - Copy the name exactly in the dict, if you recommend no scaling just provide and empty list
+            - You will fill actions attribute with three keys: one for each scaling method and one for no scaling "no_scaling", the value of the key will be a list of the models you recommend to scale this with, models have been given in the context above
+
+
+            - Copy the names exactly in the dict
 
             - you will also provide reasoning for your actions in the reasoning key
 
-            - You will also create a prompt for the user (in the prompts attribute (just one string item in the list)) asking them to choose the columns they would like to process for skewing, while mentioning and explaining your recommendation
+            - You will also create a prompt for the user (in the prompts attribute (just one string item in the list)) asking them to choose a scaling method for each model, while mentioning and explaining your recommendation
 
             - Use markdown for good stylization and professional language
 

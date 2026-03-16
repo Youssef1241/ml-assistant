@@ -1,39 +1,4 @@
-from preprocessor.model import Options, Prompts, small_model
-from preprocessor.null_handler_tools import *
-
-# def return_null_values(state) -> str:
-#     df = state['df_info']
-#     output_string = ""
-#     output_string += "Context: \n\n"
-#     for key in ['n_rows', 'n_cols (without target)', 'numeric_features', 'categorical_features', 'all_stats']:
-#         if key in df:
-#             output_string += f"{key}: {df[key]}\n"
-#     output_string+="\n\nNull Values Percentages\n"
-#     output_string+=str(df["null_percentages"])
-#     return output_string
-
-def update_nulls(state):
-    try:
-        import pickle
-        with open("pickles/update.pkl", "wb") as f:
-            pickle.dump(state, f) 
-        # impute_columns = state["user_choice"]["column_names"]["fill_with_average"]
-        # drop_columns = state["user_choice"]["column_names"]["drop_column"]
-        # drop_rows = state["user_choice"]["column_names"]["drop_rows"]
-        # df = pd.DataFrame(state['original_df'])
-        # impute_response, df = replace_with_avg(impute_columns, df) if len(impute_columns) > 0 else []
-        # col_drop_response, df = drop_column(drop_columns, df) if len(drop_columns) > 0 else []
-        # row_drop_response, df = drop_all_rows(drop_rows, df) if len(drop_rows) > 0 else []
-        
-    except Exception as e:
-        print(f"Error at {e}")   
-    # return {'update': [impute_response, col_drop_response, row_drop_response],
-    #         'original_df': df.to_dict(),
-    #         "subgraph": 0 if reset_subgraph else state['subgraph'] + 1,
-    #         }
-    return {'update': [],
-            }
-
+from config.model import Options, Prompts, small_model
 null_handler_config = {
     "struct": 
     [{
@@ -83,7 +48,6 @@ null_handler_config = {
         "context_demands": {"struct": "null0"},
     }],
     "interrupt_name": ["null_columns"],
-    "update": update_nulls
     }
 
 

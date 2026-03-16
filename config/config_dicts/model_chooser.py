@@ -1,4 +1,4 @@
-from preprocessor.model import Options, Prompts,small_model, FullPayload
+from config.model import Options, Prompts,small_model, FullPayload
 
 
 models_config = {

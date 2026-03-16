@@ -3,12 +3,11 @@ import numpy as np
 import pandas as pd
 from dotenv import load_dotenv
 from scipy.stats import entropy
-from collections import Counter
-from imblearn.combine import SMOTETomek
-from preprocessor.null_handler_tools import *
-from imblearn.under_sampling import RandomUnderSampler
-from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
-from preprocessor.model import Options, Prompts,small_model, FullPayload
+# from collections import Counter
+# from imblearn.combine import SMOTETomek
+# from imblearn.under_sampling import RandomUnderSampler
+# from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
+from config.model import Options, Prompts,small_model, FullPayload
 
 load_dotenv()
 
@@ -16,10 +15,10 @@ def calculate_imbalance_data(n_classes, total, counts):
     ir_threshold = 6
     entropy_threshold = 0.95
     class_counts = np.array(list(counts.values()))
-    ir = round(class_counts.max() / class_counts.min(), 4)
+    ir = float(round(class_counts.max() / class_counts.min(), 4))
     probs = class_counts / total
-    norm_entropy = round(entropy(probs) / np.log(n_classes), 4)
-    is_imbalanced = ir > ir_threshold or norm_entropy < entropy_threshold
+    norm_entropy = float(round(entropy(probs) / np.log(n_classes), 4))
+    is_imbalanced = bool(ir > ir_threshold or norm_entropy < entropy_threshold)
     return (ir, norm_entropy, is_imbalanced)
   
 # def imbalance_data(state) -> str:
