@@ -6,12 +6,16 @@ def create_models_dict(state: dict):
     user_choice = state["user_choice"]
     struct = state["struct"]
     models_list = list()
-    options_list = ["models", "skew", "scaling", "imbalance_methods"]
-    names_list = ["model", "skew-fixing", "scaling-method", "imbalance-method"]
-    for choice_key, choice_value in user_choice.items():
-            if choice_key in options_list:
-                models_list.append(choice_value[choice_key])
-    models_dict = [dict(zip(names_list, values)) for values in product(*models_list)]
+    options_list = ["models", "scaling", "imbalance_methods"]
+    names_list = ["model", "scaling-method", "imbalance-method"]
+    scaling_models = user_choice["scaling"]["scaling"]
+    imbalance_methods = user_choice['imbalance_methods']["imbalance_methods"]["True"]
+    for method in scaling_models:
+        for model in scaling_models[method]:
+            for imb_method in imbalance_methods:
+                models_list.append([method, model,imb_method])
+    spec_names = ['scaling','model','imbalance_method']
+    models_dict =  [dict(zip(spec_names,item)) for item in models_list ]
     struct[output_name] = models_dict
     return {"struct": struct}
 

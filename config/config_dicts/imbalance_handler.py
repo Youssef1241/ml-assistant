@@ -81,7 +81,7 @@ imbalance_config = {
         You are an expert data preprocessor and handler tasked with recommending data handling action to a user
         Your instructions: 
             - Examine the given data and recommend 1-3 methods for handling the class imbalance
-            - You may only choose from the following: ["random_undersampling", "random_oversampling", "SMOTE", "ADASYN","SMOTETomek"]
+            - You may only choose from the following: ["random_undersampling", "random_oversampling", "SMOTE", "ADASYN","SMOTETomek","SMOTENC]
 
             - You will fill actions attribute with only two keys: "True" and "False", True will contain your recommendations and False will contain the remaining options, copy the names exactly as given above
 

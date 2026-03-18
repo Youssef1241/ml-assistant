@@ -6,17 +6,16 @@ from pandas import DataFrame
 
 load_dotenv()
 
-def update_nulls(state):
+def update_nulls(state, df):
     impute_columns = state["user_choice"]["null_columns"]["fill_with_average"]
     drop_columns = state["user_choice"]["null_columns"]["drop_column"]
     drop_rows = state["user_choice"]["null_columns"]["drop_rows"]
-    df = pd.DataFrame(state['original_df'])
     impute_response, df = _replace_with_avg(impute_columns, df) if len(impute_columns) > 0 else []
     col_drop_response, df = _drop_column(drop_columns, df) if len(drop_columns) > 0 else []
     row_drop_response, df = _drop_all_rows(drop_rows, df) if len(drop_rows) > 0 else []
-    # return {'update': [impute_response, col_drop_response, row_drop_response],
-    #     'original_df': df.to_dict(),
-    #     }
+    return ([impute_response, col_drop_response, row_drop_response], df)
+    
+        
         
 
 def _replace_with_avg(columns: list, df: DataFrame) -> (str, DataFrame):

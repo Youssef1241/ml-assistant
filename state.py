@@ -13,12 +13,9 @@ class MessagesState(TypedDict):
     messages: Annotated[list[AnyMessage], operator.add]
     llm_calls: int
     struct: dict
-    analysis: Annotated[list[dict], operator.add]
     user_choice: dict
     update: dict
     subgraph: int
-    original_df: dict
-    df_dict: dict[str, pd.DataFrame]
     df_info: dict[str,str]
 
 def preprocessor_should_continue(state: MessagesState) -> Literal["preprocessor_tools","user_input", END]:
