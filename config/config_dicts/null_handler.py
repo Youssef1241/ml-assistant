@@ -23,7 +23,7 @@ null_handler_config = {
         "schema": Options,
         "model": small_model,
         "output_name": "null0",
-        "data_demands": ['n_rows', 'n_cols (without target)', 'numeric_features', 'categorical_features', 'all_stats', 'null_percentages'],
+        "data_demands": ['n_rows', 'n_cols', 'numeric_features', 'categorical_features', 'all_stats', 'null_percentages'],
     },
     {
         "prompt": 

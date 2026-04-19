@@ -23,7 +23,7 @@ from config.model import small_model, FullPayload
 #     output_string += str(df['head'])
 #     output_string += "\n\n"
 #     output_string += "\nData description: \n\n"
-#     for key in ['n_rows', 'n_cols (without target)', 'numeric_features', 'categorical_features', 'all_stats']:
+#     for key in ['n_rows', 'n_cols', 'numeric_features', 'categorical_features', 'all_stats']:
 #         if key in df:
 #             output_string += f"{key}: {df[key]}\n"
 #     output_string += "\n\n"
@@ -55,10 +55,7 @@ metrics_config = {
         "schema": FullPayload,
         "model": small_model,
         "output_name": "met0",
-        "data_demands": ['Class Distributions','Sample Data','n_rows', 'n_cols (without target)', 'numeric_features', 'categorical_features', 'all_stats','imbalance_ratio','data_description'],
+        "data_demands": ['Class Distributions','Sample Data','n_rows', 'n_cols', 'numeric_features', 'categorical_features', 'all_stats','imbalance_ratio','data_description'],
     }],
     "interrupt_name": ["metrics"],
     }
-
-
-    

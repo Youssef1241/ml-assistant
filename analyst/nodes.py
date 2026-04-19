@@ -3,6 +3,7 @@ from analyst.tools import model_with_tools
 import os
 from dotenv import load_dotenv
 import pandas as pd
+from helpers import use_persistent
 load_dotenv()
 
 def analyst_call(state: dict):
@@ -21,6 +22,7 @@ def analyst_call(state: dict):
         )
     ] + state["messages"]
     result = model_with_tools.invoke(messages_to_send)
+    # result = use_persistent(model_with_tools,"analyst_call_reult.pkl", messages_to_send)
     return {
         "messages": [result],
         "llm_calls": state.get('llm_calls', 0) + 1,

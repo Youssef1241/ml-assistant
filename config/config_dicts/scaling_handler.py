@@ -1,7 +1,7 @@
 from config.model import small_model, FullPayload
 
 
-skew_config = {
+scaling_config = {
     "struct": 
     [{
         "prompt": """
@@ -26,7 +26,7 @@ skew_config = {
         "schema": FullPayload,
         "model": small_model,
         "output_name": "sca0",
-        "data_demands": ['n_rows', 'n_cols (without target)',  'numeric_stats', 'models'],
+        "data_demands": ['n_rows', 'n_cols',  'numeric_stats', 'models'],
     }],
     "interrupt_name": ["scaling"],
     }

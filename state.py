@@ -48,7 +48,7 @@ def should_continue(state: MessagesState) -> Literal["analyst_tools", END]:
     if last_message.tool_calls:
         return "analyst_tools"
 
-    return "preprocessor"
+    return "saver"
 
 def make_tool_node(tools_by_name):
 
@@ -98,7 +98,7 @@ def prompt_generator(
     state: dict, 
     demands: list[Literal[
         "n_rows",
-        "n_cols (without target)",
+        "n_cols",
         "numeric_features",
         "categorical_features",
         "null_counts",
@@ -124,7 +124,10 @@ def prompt_generator(
     output_string = ""
     for item in demands:
         output_string += item + ": \n"
-        output_string += str(df_info.get(item, state["user_choice"][item])) + "\n\n"
+        # import json
+        # with open("pickles/df_info.json","w") as f:
+        #     json.dump(df_info['Sample Data'], f)
+        output_string += str(df_info.get(item, state.get("user_choice").get(item))) + "\n\n"
     if len(demands) == 0:
         output_string = "Perform the task: \n"
     return output_string
@@ -134,9 +137,11 @@ def load_df(state):
         from config.config_dicts.imbalance_handler import calculate_imbalance_data
         shape = df.shape
         numeric_features = df.select_dtypes(include="number").columns
-        numeric_features = {"count": len(numeric_features),"data": numeric_features}
-        categorical_features = df.select_dtypes(include=["object","string"]).columns
-        categorical_features = {"count": len(categorical_features),"data": categorical_features}
+        numeric_features = {"count": len(numeric_features),"data": list(numeric_features)}
+        # Pandas .columns returns an Index type, which can cause serialization issues.
+        # To fix, convert to a list before putting in your dict.
+        categorical_cols = df.select_dtypes(include=["object", "string"]).columns
+        categorical_features = {"count": len(categorical_cols),"data": list(categorical_cols)}
         null_counts = df.isnull().sum()
         null_percentages = {c: round(v/shape[0] *100,2) for c, v in null_counts.items()}
         all_stats = {}
@@ -158,7 +163,7 @@ def load_df(state):
             outlier_count = int(((column < lower) | (column > upper)).sum())
             col_dict = {
                 "type": "numeric",
-                "mean": round(df[item].mean(),4),
+                "mean": round(float(df[item].mean()),4),
                 "std": float(df[item].std()),
                 "min": float(df[item].min()),
                 "max": float(df[item].max()),
@@ -179,26 +184,45 @@ def load_df(state):
         ir, norm_entropy, is_imbalanced = calculate_imbalance_data(shape[0], class_dist)
         
 
-        return {
-            "n_rows": shape[0],
-            "n_cols": shape[1],
-            "numeric_features": numeric_features,
-            "categorical_features": categorical_features,
-            "numeric_stats": numeric_stats,
-            "categorical_stats": cat_stats,
-            "null_percentages": null_percentages,
-            "Dataset Description": all_stats,
-            "Class Distributions": class_percentages,
-            "imbalance_ratio": ir,
-            "correlation_matrix": df[numeric_features["data"]].corr().to_dict(),
-            "Sample Data": df.head().to_dict(),
-            "Normalized Entropy": norm_entropy,
-            "is_imbalanced": is_imbalanced,
+        # Convert non-serializable numpy types (e.g., numpy.float64, pandas Series) to built-in Python types for msgpack
+        def safe_convert(obj):
+            if hasattr(obj, "item") and not isinstance(obj, (str, bytes)):
+                try:
+                    return obj.item()
+                except Exception:
+                    return obj
+            elif isinstance(obj, dict):
+                return {safe_convert(k): safe_convert(v) for k, v in obj.items()}
+            elif isinstance(obj, (list, tuple, set)):
+                return [safe_convert(i) for i in obj]
+            else:
+                return obj
+
+        serializable_results = {
+            "n_rows": int(shape[0]),
+            "n_cols": int(shape[1]),
+            "numeric_features": safe_convert(numeric_features),
+            "categorical_features": safe_convert(categorical_features),
+            "numeric_stats": safe_convert(numeric_stats),
+            "categorical_stats": safe_convert(cat_stats),
+            "null_percentages": safe_convert(null_percentages),
+            "Dataset Description": safe_convert(all_stats),
+            "Class Distributions": safe_convert(class_percentages),
+            "imbalance_ratio": float(ir) if isinstance(ir, float) or hasattr(ir, "item") else ir,
+            "correlation_matrix": safe_convert(df[numeric_features["data"]].corr().to_dict()),
+            "Sample Data": safe_convert(df.head().to_dict()),
+            "Normalized Entropy": float(norm_entropy) if isinstance(norm_entropy, float) or hasattr(norm_entropy, "item") else norm_entropy,
+            "is_imbalanced": bool(is_imbalanced),
+            "null_counts": safe_convert(null_counts.to_dict() if hasattr(null_counts, "to_dict") else null_counts),
         }
+        return serializable_results
     data_path = state['df_info']['filepath']
     target_col = state['df_info']['target']
     df = pd.read_csv(data_path)
     results = analyze_df(df, target_col)
+    import pickle
+    with open("pickles/df_info_results.pkl", "wb") as f:
+        pickle.dump(results, f)
     state['df_info'].update(results)
     return {
         "df_info": state['df_info'],

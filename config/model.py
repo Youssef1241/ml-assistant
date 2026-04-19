@@ -2,7 +2,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from dotenv import load_dotenv
 import os
 from pydantic import BaseModel
-from typing import Dict, Union, Optional
+from typing import Any, Dict, Union, Optional
 
 load_dotenv()
 model = ChatGoogleGenerativeAI(
@@ -29,6 +29,10 @@ class Options(BaseModel):
     reasoning: str
     actions: Dict[str, List[str]]
 
+class HPOptions(BaseModel):
+    reasoning: str
+    actions: Dict[str, Dict[str, Any]]
+    
 class Prompts(BaseModel):
     prompts: List[str]
 

@@ -93,7 +93,7 @@ imbalance_config = {
         "schema": FullPayload,
         "model": small_model,
         "output_name": "imb0",
-        "data_demands": ['imbalance_ratio','Normalized Entropy', 'Class Distributions', 'n_rows', 'n_cols (without target)', 'numeric_features', 'categorical_features', 'data_description','metrics', 'models'],
+        "data_demands": ['imbalance_ratio','Normalized Entropy', 'Class Distributions', 'n_rows', 'n_cols', 'numeric_features', 'categorical_features', 'data_description','metrics', 'models'],
     }],
     "interrupt_name": ["imbalance_methods"],
     }

@@ -41,7 +41,7 @@ filter_config = {
         "schema": FullPayload,
         "model": small_model,
         "output_name": "fil1",
-        "data_demands": ['n_rows', 'n_cols (without target)',  'Class Distributions', 'numeric_features','categorical_features','imbalance_ratio', 'metrics'],
+        "data_demands": ['n_rows', 'n_cols',  'Class Distributions', 'numeric_features','categorical_features','imbalance_ratio', 'metrics'],
         "context_demands": {'struct': 'fil0'}
     }],
     "interrupt_name": ["filter"],

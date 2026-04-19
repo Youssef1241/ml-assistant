@@ -18,8 +18,7 @@ encoding_config = {
         "schema": Options,
         "model": small_model,
         "output_name": "enc0",
-        "data_demands": ['n_rows', 'n_cols (without target)', 'categorical_stats','data_description', 'models'],
-        "context_demands": {'struct': 'mod0'}
+        "data_demands": ['n_rows', 'n_cols', 'categorical_stats','data_description', 'models'],
     },
     {
         "prompt": """
@@ -34,7 +33,7 @@ encoding_config = {
 
             Your prompt will include the column names, the possible actions for the user (one-hot, ordinal-encoding, binary-encoding, frequency-encoding, target-encoding), as well as the given recommendation and the reasoning behind it.
 
-            in the given context the key is the recommendation, there are five possible recommendations: [one-hot, ordinal-encoding, binary-encoding, frequency-encoding, target-encoding], you will return one prompt for each key, that is a list of three prompts
+            in the given context the key is the recommendation, there are five possible recommendations: [one-hot, ordinal-encoding, binary-encoding, frequency-encoding, target-encoding], you will return one prompt for each key. if a key doesnt have a recommendation just put "None" as the value.
 
             You will use markdown for good stylization and professional language in your answers.
             """,

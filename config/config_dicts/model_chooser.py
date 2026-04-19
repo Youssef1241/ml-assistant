@@ -22,7 +22,7 @@ models_config = {
         "schema": FullPayload,
         "model": small_model,
         "output_name": "mod0",
-        "data_demands": ['Class Distributions','Sample Data','n_rows', 'n_cols (without target)', 'numeric_features', 'categorical_features', 'all_stats','imbalance_ratio','data_description', 'metrics'],
+        "data_demands": ['Class Distributions','Sample Data','n_rows', 'n_cols', 'numeric_features', 'categorical_features', 'all_stats','imbalance_ratio','data_description', 'metrics'],
     }],
     "interrupt_name": ["models"],
     }

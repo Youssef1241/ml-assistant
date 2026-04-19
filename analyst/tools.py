@@ -12,11 +12,13 @@ load_dotenv()
 @tool
 def analyse_data(state: dict) -> str:
     """Analyse the data and return a summary"""
-    output_string = prompt_generator(state, ['Sample Data','n_rows', 'n_cols (without target)', 'numeric_features', 'categorical_features', 'all_stats','Class Distributions','null_percentages', 'correlation_matrix'])
+    output_string = prompt_generator(state, ['Sample Data','n_rows', 'n_cols', 'numeric_features', 'categorical_features', 'all_stats','Class Distributions','null_percentages', 'correlation_matrix'])
 
     os.makedirs("images", exist_ok=True)
     plt.figure(figsize=(6,6))
-    plt.pie(state["df_info"]["class_dist"].values(), labels=state["df_info"]["class_dist"].keys(), autopct='%1.1f%%', startangle=90, colors=['skyblue', 'lightcoral'])
+    class_dist = state["df_info"]["Class Distributions"]
+    class_values = [item["count"] for item in class_dist.values()]
+    plt.pie(class_values, labels=class_dist.keys(), autopct='%1.1f%%', startangle=90, colors=['skyblue', 'lightcoral'])
     plt.title(f"Target Value Counts")
     plt.savefig("images/label_pie_chart.png");
 

@@ -14,10 +14,8 @@ def update_nulls(state, df):
     col_drop_response, df = _drop_column(drop_columns, df) if len(drop_columns) > 0 else []
     row_drop_response, df = _drop_all_rows(drop_rows, df) if len(drop_rows) > 0 else []
     return ([impute_response, col_drop_response, row_drop_response], df)
-    
+           
         
-        
-
 def _replace_with_avg(columns: list, df: DataFrame) -> (str, DataFrame):
     """Replace null values with average value"""
     loglist = list()
