@@ -163,14 +163,18 @@ def create_visualizations(state, df, trained):
         height=6, aspect=1.5, palette="deep")
     sns.despine(left=True)
     g.savefig("frontend/static/model_metrics_barplot.png")
+    plt.close("all")
     log_event(logger, logging.INFO, "Saved chart", path="frontend/static/model_metrics_barplot.png")
 
     slugs_list = [item["slug"] for item in trained]
+    fig, ax = plt.subplots() 
     for model in slugs_list:
         trained_model = next(item for item in trained if item["slug"] == model)        
         fpr, tpr, _ = roc_curve(trained_model["ytest"][0], trained_model["ytest"][1])
-        plt.plot(fpr, tpr)
-    plt.savefig(f"frontend/static/roc_curve.png")
+        ax.plot(fpr, tpr, label=model)
+    ax.legend()
+    fig.savefig(f"frontend/static/roc_curve.png")
+    plt.close("all")
     log_event(logger, logging.INFO, "Saved chart", path="frontend/static/roc_curve.png")
     
     metrics = list(trained[0].keys())[:-3]
@@ -191,26 +195,7 @@ def create_visualizations(state, df, trained):
     plt.tight_layout()
     plt.savefig(f"frontend/static/spider_comparison.png")
     log_event(logger, logging.INFO, "Saved chart", path="frontend/static/spider_comparison.png")
-
-# def create_pipeline(state: dict):
-#     import os 
-#     import joblib
-#     inference_pipeline = state['pipeline']
-#     models_list = inference_pipeline[-1]
-#     chosen_model = state['user_choice']['chooseone']['chooseone']
-#     model_path = next(item[1] for item in models_list if chosen_model == item[0])
-#     inference_pipeline.pop(-1)
-#     inference_pipeline.append(model_path)
-#     log_event(logger, logging.INFO, "create_pipeline start", steps=len(inference_pipeline))
-#     classes_list = [pickle.load(open(item, "rb")) for item in inference_pipeline]
-#     imputer =("imputer", SimpleImputer(strategy='median'))
-#     pipeline_list = [(a, b) for a, b in zip(inference_pipeline, classes_list)]
-#     pipeline_list.insert(0, imputer)
-#     pipeline = Pipeline(pipeline_list)
-#     os.makedirs(f"/tmp", exist_ok=True)
-#     joblib.dump(pipeline, '/tmp/pipeline.pkl')
-#     log_event(logger, logging.INFO, "Pipeline written", path="/tmp/pipeline.pkl")
-#     return state
+    plt.close("all")
 
 def create_pipeline(state: dict):
     inference_pipeline = state['pipeline']

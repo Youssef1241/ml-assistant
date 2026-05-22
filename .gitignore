@@ -11,3 +11,6 @@ datasets
 pickles
 simple_test.ipynb
 test.json
+pipeline
+*.md
+*.ipynb
