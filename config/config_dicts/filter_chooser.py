@@ -1,4 +1,4 @@
-from config.model import small_model, FullPayload
+from config.model import FilterPayload
 output_name = "fil0"
 def create_models_dict(state: dict):
     """Create a dictionary of possible models and their preprocessing methods"""
@@ -17,12 +17,21 @@ def create_models_dict(state: dict):
     spec_names = ['scaling','model','imbalance_method']
     models_dict =  [dict(zip(spec_names,item)) for item in models_list ]
     struct[output_name] = models_dict
+    with open("pickles/create_models_dict.pkl", "wb") as f:
+        import pickle
+        pickle.dump(state, f)
     return {"struct": struct}
 
 filter_config = {
     "struct": 
     [{
         "prompt": """
+
+        Context:
+
+        {context}
+        ---
+
         You are an expert data scientist and handler tasked with recommending actions to a user based on the dataset
         Your instructions: 
             - Examine the given model and preprocessing mixes, and choose only 6 for training
@@ -35,11 +44,12 @@ filter_config = {
 
             - You will also create a prompt for the user (in the prompts attribute (just one string item in the list)) showing them your recommendations, and explaining why you chose them and ask the user whether they would like to proceed or choose other model mixes instead.
 
-            - Use markdown for good stylization and professional language
+            - in the beginning, create a ### heading with the task, then put your prompt, also dont put --- in the beginning
 
+            - Use markdown for good stylization and professional language
+ 
         """,
-        "schema": FullPayload,
-        "model": small_model,
+        "schema": FilterPayload,
         "output_name": "fil1",
         "data_demands": ['n_rows', 'n_cols',  'Class Distributions', 'numeric_features','categorical_features','imbalance_ratio', 'metrics'],
         "context_demands": {'struct': 'fil0'}

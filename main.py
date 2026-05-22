@@ -1,31 +1,256 @@
+import logging
+from loguru import logger
+from config.model import *
 from state import MessagesState
 from langgraph.types import interrupt
+from logging_utils import get_logger, log_event
 from langgraph.graph import StateGraph, START, END
 from langchain.messages import HumanMessage, SystemMessage
 from config.config_dicts.null_handler import null_handler_config
-from config.model import *
+
+logger = get_logger(__name__)
 
 def saver(state):
     import pickle
-    with open("pickles/skew_results.pkl", "wb") as f:
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/model.pkl", "wb") as f:
         pickle.dump(state, f)
     return state
 
+def null_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/null.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+def metric_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/metric.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+def model_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/model.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+def encoding_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/encoding.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+def skew_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/skew.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+def scaling_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/scaling.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+def imbalance_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/imbalance.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+def allto6_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/allto6.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+def hp_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/hp.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+# def train_saver(state):
+#     import pickle
+#     log_event(logger, logging.INFO, "Saving results snapshot")
+#     with open("pickles/train.pkl", "wb") as f:
+#         pickle.dump(state, f)
+#     return state
+
+def sixto3_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/sixto3.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+def train_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/train.pkl", "wb") as f:
+        pickle.dump(state, f)
+    return state
+
+def train_full_data_saver(state):
+    import pickle
+    log_event(logger, logging.INFO, "Saving results snapshot")
+    with open("pickles/train_full_data.pkl", "wb") as f:
+        pickle.dump(state, f)
+
+
+def load_null(state):
+    import pickle
+    with open("pickles/null.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    interrupt_payload = interrupt({"struct": loaded_state['struct']})
+
+    return {
+        "user_choice": {"null_columns": interrupt_payload},
+        "subgraph": 0,
+    }
+
+def load_metric(state):
+    import pickle
+    with open("pickles/metric.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    interrupt_payload = interrupt({"struct": loaded_state['struct']})
+
+    return {
+        "user_choice": {"metrics": interrupt_payload},
+        "subgraph": 0,
+    }
+
+def load_model(state):
+    import pickle
+    with open("pickles/model.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    interrupt_payload = interrupt({"struct": loaded_state['struct']})
+
+    return {
+        "user_choice": {"models": interrupt_payload},
+        "subgraph": 0,
+    }
+
+def load_encoding(state):
+    import pickle
+    with open("pickles/encoding.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    interrupt_payload = interrupt({"struct": loaded_state['struct']})
+
+    return {
+        "user_choice": {"encoding": interrupt_payload},
+        "subgraph": 0,
+    }
+
+def load_skew(state):
+    import pickle
+    with open("pickles/skew.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    interrupt_payload = interrupt({"struct": loaded_state['struct']})
+
+    return {
+        "user_choice": {"skew": interrupt_payload},
+        "subgraph": 0,
+    }
+
+def load_scaling(state):
+    import pickle
+    with open("pickles/scaling.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    interrupt_payload = interrupt({"struct": loaded_state['struct']})
+
+    return {
+        "user_choice": {"scaling": interrupt_payload},
+        "subgraph": 0,
+    }
+
+def load_imbalance(state):
+    import pickle
+    with open("pickles/imbalance.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    interrupt_payload = interrupt({"struct": loaded_state['struct']})
+
+    return {
+        "user_choice": {"imbalance_methods": interrupt_payload},
+        "subgraph": 0,
+    }
+
+def load_allto6(state):
+    import pickle
+    with open("pickles/allto6.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    interrupt_payload = interrupt({"struct": loaded_state['struct']})
+
+    return {
+        "user_choice": {"filter": interrupt_payload},
+        "subgraph": 0,
+    }
+
+
+def load_hp(state):
+    import pickle
+    with open("pickles/hp.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    interrupt_payload = interrupt({"struct": loaded_state['struct']})
+
+    return {
+        "user_choice": {"hp": interrupt_payload},
+        "subgraph": 0,
+    }
+
+def load_train(state):
+    import pickle
+    with open("pickles/train.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    return {
+        "update": loaded_state['update'],
+        "pipeline": loaded_state['pipeline'],
+    }
+
+def load_6to3(state):
+    import pickle
+    with open("pickles/sixto3.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    interrupt_payload = interrupt({"struct": loaded_state['struct']})
+
+    return {
+        "user_choice": {"final": interrupt_payload},
+        "subgraph": 0,
+    }
+
+def load_train_full_data(state):
+    import pickle
+    with open("pickles/train_full_data.pkl", "rb") as f:
+        loaded_state = pickle.load(f)
+    return {
+        "update": loaded_state['update'],
+        "pipeline": loaded_state['pipeline'],
+    }
+
 def build_hitl_subgraph(config: dict, orderlist: list):
+    from helpers import create_model_instance
     node_dict= {"analysis": 0, "struct": 0, "interrupt": 0, "update": 0}
     numbered_orderlist = []
     for node in orderlist:
         numbered_orderlist.append(node+str(node_dict[node]))
         node_dict[node]+=1
     def struct_node(state):
-        # import pickle
-        # with open("pickles/state.pkl", "rb") as f:
-        #     loaded_state = pickle.load(f)
-
+        model = create_model_instance(state["model_info"])
+        logger.info("Subgraph struct node start")
         node_count = int(numbered_orderlist[state['subgraph']][-1])
         current_struct = config['struct'][node_count] 
+        log_event(logger,logging.INFO,"Subgraph struct node start",node_count=node_count,output_name=current_struct.get("output_name"),)
       
-        model = current_struct['model']
         struct_model = model.with_structured_output(current_struct["schema"])
 
         message_template = current_struct["prompt"]
@@ -38,55 +263,50 @@ def build_hitl_subgraph(config: dict, orderlist: list):
         else:
             human_message = message_template
         messages = [SystemMessage(content=prompt_generator(state, current_struct.get("data_demands",[]))), human_message]
-        # return {"subgraph": 1, "struct": {"structresponse": "value"}}
-        options_dict = struct_model.invoke(messages)
+        with open(f"pickles/scalingprompt{node_count}.pkl", "wb") as f:
+            import pickle
+            pickle.dump(messages, f)
+        logger.info("Message prompts: " + str(messages))
+        try:
+            options_dict = struct_model.invoke(messages)
+        except Exception as e:
+            logger.error(e)
+        # logger.info("Response: " + str(options_dict)) 
+        import pickle
+        with open(f"pickles/scaling{node_count}.pkl", "wb") as f:
+            pickle.dump(options_dict, f)
         struct_dict = state['struct']
         struct_dict[current_struct["output_name"]] = options_dict.model_dump_json()
-        # struct_dict[current_struct["output_name"]] = {"teststrudtnode": "value tsetlsekjl"}
-
-        # try:
-        #     import pickle
-        #     with open("pickles/struct.pkl", "wb") as f:
-        #         pickle.dump(state, f)
-        # except Exception as e:
-        #     print(f"Error at {e}")
-        # return {"struct": options_dict.model_dump_json()}
         
         return {
             "struct": struct_dict,
             "subgraph": state["subgraph"] + 1,
         }
-        # else:
-        #     return {
-        #         "struct": struct_dict,
-        #         "subgraph": 1
-        #         }
-        
-
-
 
     def ask_user_node(state):
 
-        # try:
-        #     import pickle
-        #     with open("pickles/struct.pkl", "wb") as f:
-        #         pickle.dump(state, f)
-        # except Exception as e:
-        #     print(f"Error at {e}")
         if config.get("interrupt_message", None):
             interrupt_message = config["interrupt_message"]
             n_rows = state['df_info']['n_rows']
             n_rows_20 = int(n_rows * 0.2)
             n_rows_10 = int(n_rows * 0.1)
+            log_event(
+                logger,
+                logging.INFO,
+                "Subgraph interrupt requested with message",
+                n_rows=n_rows,
+            )
             user_choice = interrupt({"interrupt_message": interrupt_message.format(n_rows=n_rows, n_rows_20=n_rows_20, n_rows_10=n_rows_10)})
         else:
+            log_event(logger, logging.INFO, "Subgraph interrupt requested with struct payload")
             user_choice = interrupt({"struct": state.get("struct",{})})
         state_dict = state['user_choice']
         node_count = int(numbered_orderlist[state['subgraph']][-1])
         state_dict[config["interrupt_name"][node_count]] = user_choice
+        
         return {
-            "user_choice": state_dict,
-            "subgraph": state["subgraph"] + 1,
+            "user_choice": {config["interrupt_name"][node_count]: user_choice},
+            "subgraph": 0,
         }
               
     graph_builder = StateGraph(MessagesState)
@@ -106,65 +326,161 @@ def build_hitl_subgraph(config: dict, orderlist: list):
     graph = graph_builder.compile()
     return graph
 
-from analyst.nodes import analyst_call
-# from config.config_dicts.null_handler import null_handler_config
-# from config.config_dicts.metric_chooser import metrics_config
-# from config.config_dicts.model_chooser import models_config
-from config.config_dicts.encoding_handler import encoding_config
-from config.config_dicts.skew_handler import skew_config
-# from config.nodes import preprocessor_call
 from state import *
+from processing.llm_call import *
+from analyst.nodes import analyst_call
+from processing.main import train_and_test
+from processing.main import create_pipeline
 from langgraph.graph import StateGraph, START, END
-from analyst.tools import tools_by_name as analyst_tools
+from config.config_dicts.hp_chooser import hp_config
 from langgraph.checkpoint.memory import InMemorySaver
+from processing.encoding_handling import skew_handling
+from cleaner.detection_and_cleaning import make_report
+from config.config_dicts.skew_handler import skew_config
+from analyst.tools import tools_by_name as analyst_tools
+from config.config_dicts.final_chooser import final_config
+from config.config_dicts.model_chooser import models_config
+from config.config_dicts.filter_chooser import filter_config
+from config.config_dicts.metric_chooser import metrics_config
+from config.config_dicts.cleaning_handler import clean_config
+from config.config_dicts.sampling_query import sampling_config
+from config.config_dicts.scaling_handler import scaling_config
+from config.config_dicts.null_handler import null_handler_config
+from config.config_dicts.encoding_handler import encoding_config
+from config.config_dicts.imbalance_handler import imbalance_config
+from processing.null_handling import null_handling, after_null_handling
+from cleaner.main import clean_data
 
 agent_builder = StateGraph(MessagesState)
 analyst_tool_node = make_tool_node(analyst_tools)
-null_subgraph = build_hitl_subgraph(skew_config, ['struct','struct','interrupt'])
-# agent_builder.add_node("analyst", analyst_call)
-# agent_builder.add_node("analyst_tools", analyst_tool_node)
 
-agent_builder.add_node("load_df",load_df)
-agent_builder.add_node("null_subgraph", null_subgraph)
-agent_builder.add_node("saver", saver)
-# Add edges to connect nodes
-# TEMPORARY
-agent_builder.add_edge(START, "load_df")
-agent_builder.add_edge("load_df", "null_subgraph")
+clean_subgraph = build_hitl_subgraph(clean_config, ["struct", 'interrupt'])
+null_subgraph = build_hitl_subgraph(null_handler_config, ["struct",'struct','interrupt'])
+metric_subgraph = build_hitl_subgraph(metrics_config, ["struct",'interrupt'])
+model_subgraph = build_hitl_subgraph(models_config, ["struct",'interrupt'])
+encoding_subgraph = build_hitl_subgraph(encoding_config, ["struct",'struct','interrupt'])
+skew_subgraph = build_hitl_subgraph(skew_config, ['struct','interrupt'])
+imbalance_subgraph = build_hitl_subgraph(imbalance_config, ['struct','interrupt'])
+scaling_subgraph = build_hitl_subgraph(scaling_config, ['struct','interrupt'])
+final_subgraph = build_hitl_subgraph(final_config, ['struct','interrupt'])
+hp_subgraph = build_hitl_subgraph(hp_config, ['struct','struct','interrupt'])
+filter_subgraph = build_hitl_subgraph(filter_config, ['update', 'struct','interrupt'])
+sampling_subgraph = build_hitl_subgraph(sampling_config, ['interrupt'])
+
+agent_builder.add_node("analyst", analyst_call)
+agent_builder.add_node("analyst_tools", analyst_tool_node)
+agent_builder.add_node("df info",load_df)
+agent_builder.add_node("null", load_null)
+agent_builder.add_node("metric", load_metric)
+agent_builder.add_node("model", load_model)
+agent_builder.add_node("encoding", load_encoding)
+agent_builder.add_node("skew", load_skew)
+agent_builder.add_node("scaling", load_scaling)
+agent_builder.add_node("imbalance", load_imbalance)
+agent_builder.add_node("allto6", load_allto6)
+agent_builder.add_node("hp", load_hp)
+agent_builder.add_node("sampling", sampling_subgraph)
+agent_builder.add_node("train", train_and_test)
+agent_builder.add_node("6to3", load_6to3)
+agent_builder.add_node('eval report', reporter_call)
+agent_builder.add_node('interrupt', ask_user)
+agent_builder.add_node("create pipeline", create_pipeline)
+agent_builder.add_node("final report", report_generator)
+agent_builder.add_node("train_full_data", load_train_full_data)
+# agent_builder.add_node("saver", saver)
+agent_builder.add_node("scaling saver", scaling_saver) 
+agent_builder.add_node("imbalance saver", imbalance_saver)
+agent_builder.add_node("allto6 saver", allto6_saver)
+agent_builder.add_node("hp saver", hp_saver)
+agent_builder.add_node("train saver", train_saver)
+agent_builder.add_node("6to3 saver", sixto3_saver)
+agent_builder.add_node("train full saver", train_full_data_saver)
+# agent_builder.add_node("scaling saver", scaling_saver)
+# agent_builder.add_node("null saver", null_saver)
+# agent_builder.add_node("train saver", train_saver)
+agent_builder.add_node("null_handling", null_handling)
+agent_builder.add_node("skew_handling", skew_handling)
+agent_builder.add_node("after_null_handling", after_null_handling)
+agent_builder.add_node("sixto3 saver", sixto3_saver)
+agent_builder.add_node("retrain interrupt", retrain_interrupt)
+agent_builder.add_node("gather data", make_report)
+agent_builder.add_node("clean agent", clean_subgraph)
+agent_builder.add_node("clean", clean_data)
+
+agent_builder.add_edge(START, "df info")
+agent_builder.add_edge("df info", "analyst")
+agent_builder.add_conditional_edges(
+    "analyst",
+    should_continue,
+    ["analyst_tools", "gather data"]
+)
+agent_builder.add_edge("analyst_tools", "analyst")
+# agent_builder.add_edge("saver", END)
+# agent_builder.add_edge("analyst", "gather data")
+agent_builder.add_edge("gather data", "clean agent")
+agent_builder.add_edge("clean agent", "clean")
+# agent_builder.add_edge("clean", "analyst")
+# agent_builder.add_edge("analyst", "null")
+agent_builder.add_edge("clean", "null")
+agent_builder.add_edge("null", "null_handling")
+agent_builder.add_edge("null_handling", "after_null_handling")
+agent_builder.add_edge("after_null_handling", "metric")
+agent_builder.add_edge("metric", "model")
+agent_builder.add_edge("model", "encoding")
+agent_builder.add_edge("encoding", "skew")
+agent_builder.add_edge("skew", "sampling")
+agent_builder.add_edge("sampling", "skew_handling")
+agent_builder.add_edge("skew_handling","scaling")
 # agent_builder.add_conditional_edges(
-#     "analyst",
-#     should_continue,
-#     ["analyst_tools", "saver"]
+#     "scaling",
+#     route_imbalance,
+#     ["imbalance", "allto6"]
 # )
-agent_builder.add_edge("null_subgraph", "saver")
-agent_builder.add_edge("saver", END)
+agent_builder.add_edge("scaling", "imbalance")
+agent_builder.add_edge("imbalance", "allto6")
+agent_builder.add_edge("allto6", "hp")
+# agent_builder.add_edge("hp", "hp saver")
+agent_builder.add_edge("hp", "train")
+agent_builder.add_edge("train", "train saver")
+agent_builder.add_edge("train saver", "6to3")
+agent_builder.add_edge("6to3", "train_full_data")
+# agent_builder.add_edge("train_full_data", "train full saver")
+agent_builder.add_edge("train_full_data", "eval report")
+# agent_builder.add_edge("retrain interrupt", "eval report")
+agent_builder.add_edge("eval report", "interrupt")
+agent_builder.add_conditional_edges(
+    "interrupt",
+    reroute_retrain,
+    ["null", "metric", "model", "encoding", "skew", "sampling", "scaling", "imbalance", "allto6", "hp", "6to3", "create pipeline"]
+)
+# agent_builder.add_edge("interrupt", "create pipeline")
+agent_builder.add_edge("create pipeline", "final report")
+agent_builder.add_edge("final report", END)
+
+# agent_builder.add_conditional_edges(
+#     "allto6",
+#     route_imbalance,
+#     ["sampling", "hp"]
+# )
+
+
+# agent_builder.add_edge("hp", "train")
+# agent_builder.add_edge("train", "6to3")
+# agent_builder.add_edge("6to3", "train")
+# agent_builder.add_edge("train", "train saver")
+# agent_builder.add_edge("train saver", "eval report")
+# agent_builder.add_edge("eval report", "interrupt")
+# agent_builder.add_edge("interrupt", "create pipeline")
+# agent_builder.add_edge("create pipeline", "final report")
+# agent_builder.add_edge("final report", END)
+
+# edge_list = ["df info", "analyst", "null", "null_handling", "after_null_handling", "metric", "model", "encoding", "skew", "sampling", "skew_handling", "scaling", "imbalance", "allto6", "hp", "train", "train saver", "6to3", "train_full_data", "train full saver", "interrupt", "eval report", "interrupt", "create pipeline", "final report"]
+
+# for i,node in enumerate(edge_list):
+#     agent_builder.add_edge(START, node) if i == 0 else agent_builder.add_edge(edge_list[i-1],node)
+# agent_builder.add_edge(edge_list[-1],END)
+
 
 checkpointer = InMemorySaver()
+log_event(logger,logging.INFO,"Compiling LangGraph agent",nodes=["load_df", "analyst", "analyst_tools"],conditional_edge="analyst->(analyst_tools|END)",)
 agent = agent_builder.compile(checkpointer=checkpointer)
-
-config = {
-    "configurable": {
-        "thread_id": "chat-1",
-    }
-}
-
-
-from langchain.messages import HumanMessage, SystemMessage
-messages = [SystemMessage(content="start your task"),HumanMessage(content="Analyze the data")]
-
-# Use stream() instead of invoke() to enable input() functionality
-for chunk in agent.stream({"messages": messages, "subgraph": 0, "user_choice": {}, "struct": {}, "df_info": {"target": "Survived", "filepath": "datasets/Titanic-Dataset.csv", "data_description": "Test"}}, config): 
-    # Process each chunk as it arrives
-    for node_name, node_output in chunk.items():
-        print(f"\n[{node_name}]")
-        if node_name == "__interrupt__":
-            interrupt_payload = node_output
-            break
-        if "messages" in node_output and len(node_output["messages"]) > 0:
-            last_message = node_output["messages"][-1]
-            if hasattr(last_message, "content") and last_message.content:
-                print(f"Content: {last_message.content}")
-            if hasattr(last_message, "tool_calls") and last_message.tool_calls:
-                print(f"Tool calls: {last_message.tool_calls}")
-        else:
-            print(f"Output: {node_output}")

@@ -1,4 +1,4 @@
-from config.model import Options, Prompts,small_model, FullPayload
+from config.model import Options, Prompts, FullPayload
 
 
 models_config = {
@@ -15,12 +15,12 @@ models_config = {
             - you will also provide reasoning for your actions in the reasoning key
 
             - You will also create a prompt for the user (in the prompts attribute (just one string item in the list)) asking them to choose the models, while mentioning and explaining your recommendation
+            - in the beginning, create a ### heading named Models, then put your prompt
 
             - Use markdown for good stylization and professional language
 
         """,
         "schema": FullPayload,
-        "model": small_model,
         "output_name": "mod0",
         "data_demands": ['Class Distributions','Sample Data','n_rows', 'n_cols', 'numeric_features', 'categorical_features', 'all_stats','imbalance_ratio','data_description', 'metrics'],
     }],

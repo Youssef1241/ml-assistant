@@ -1,4 +1,4 @@
-from config.model import small_model, FullPayload
+from config.model import FullPayload
 
 
 skew_config = {
@@ -21,7 +21,6 @@ skew_config = {
 
         """,
         "schema": FullPayload,
-        "model": small_model,
         "output_name": "ske0",
         "data_demands": ['n_rows', 'n_cols',  'numeric_stats', 'metrics', 'models'],
     }],

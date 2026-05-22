@@ -1,24 +1,37 @@
+import os
 import operator
 import pandas as pd
 from typing import Literal
+import logging
 from langgraph.graph import END
 from langgraph.types import interrupt
 from langchain.messages import AnyMessage
 from typing_extensions import TypedDict, Annotated
 from langchain.messages import ToolMessage, HumanMessage
-import os
+from logging_utils import get_logger, log_event
+from typing import Any
 
+logger = get_logger(__name__)
 
+def merge_dicts(left: dict, right: dict) -> dict:
+    return {**left, **right}
+
+def keep_last(left, right):
+    return right
+    
 class MessagesState(TypedDict):
     messages: Annotated[list[AnyMessage], operator.add]
     llm_calls: int
     struct: dict
-    user_choice: dict
+    user_choice: Annotated[dict, merge_dicts]
     update: dict
-    subgraph: int
+    subgraph: Annotated[int, keep_last]
     df_info: dict[str,str]
+    pipeline: dict
+    data_split: Any
+    model_info: dict
 
-def preprocessor_should_continue(state: MessagesState) -> Literal["preprocessor_tools","user_input", END]:
+def should_continue(state: MessagesState) -> Literal["analyst_tools", "null"]:
     """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
 
     messages = state["messages"]
@@ -26,35 +39,41 @@ def preprocessor_should_continue(state: MessagesState) -> Literal["preprocessor_
 
     # If the LLM makes a tool call, then perform an action
     if last_message.tool_calls:
-        name = last_message.tool_calls[0]["name"]
-        if name == "ask_user":
-            return "user_input"
-        else:
-            return "preprocessor_tools"
-
-    # If the LLM asked a question directly (no tool call), still route to user input.
-    if getattr(last_message, "content", "") and "?" in last_message.content:
-        return "user_input"
-
-    return END
-
-def should_continue(state: MessagesState) -> Literal["analyst_tools", END]:
-    """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""
-
-    messages = state["messages"]
-    last_message = messages[-1]
-
-    # If the LLM makes a tool call, then perform an action
-    if last_message.tool_calls:
+        log_event(
+            logger,
+            logging.INFO,
+            "Analyst routing to tools",
+            tool_count=len(last_message.tool_calls),
+        )
         return "analyst_tools"
 
-    return "saver"
+    log_event(logger, logging.INFO, "Analyst routing to tools or null")
+    return "gather data"
+
+def reroute_retrain(state: MessagesState):
+    """Decide if we should continue the loop or stop based upon whether the LLM made a tool call"""    
+    log_event(logger, logging.INFO, "rerouting retrain")
+    if state['user_choice'].get('retrain', None):
+        try:
+            state['user_choice']['final'] = None
+        except:
+            pass
+        return state['user_choice'].get('retrain', None)
+    else:
+        return "create pipeline"
 
 def make_tool_node(tools_by_name):
 
     def tool_node(state):
         result = []
         for tool_call in state["messages"][-1].tool_calls:
+            log_event(
+                logger,
+                logging.INFO,
+                "Executing tool call",
+                tool_name=tool_call["name"],
+                arg_keys=list(tool_call.get("args", {}).keys()),
+            )
             tool = tools_by_name[tool_call["name"]]
             tools_args = {**tool_call["args"], "state": state}
             observation = tool.invoke(tools_args)
@@ -69,25 +88,17 @@ def make_tool_node(tools_by_name):
 
     return tool_node
 
-def ask_user_node(state):
-    last = state["messages"][-1]
-    if last.tool_calls:
-        question = last.tool_calls[0]["args"].get("question", "Provide input:")
-    else:
-        # Fallback when the model asked directly in assistant content.
-        question = last.content or "Provide input:"
-    print("\nLLM: ", question)
-    
-    user_answer = interrupt("Your response: ")
-    return {
-        "messages": [HumanMessage(content=user_answer)]
-    }
-
 def route_imbalance(state):
     if state["df_info"]["is_imbalanced"]:
-        return 'imbalance_subgraph'
+        return 'imbalance'
     else:
-        return 'metric_subgraph'
+        return 'allto6'
+
+def route_sampling(state):
+    if state["df_info"]["n_rows"] > 2000:
+        return 'sampling'
+    else:
+        return 'hp'
 
 def subgraph_reset(state):
     return {
@@ -183,7 +194,6 @@ def load_df(state):
             cat_stats[item] = col_dict
         ir, norm_entropy, is_imbalanced = calculate_imbalance_data(shape[0], class_dist)
         
-
         # Convert non-serializable numpy types (e.g., numpy.float64, pandas Series) to built-in Python types for msgpack
         def safe_convert(obj):
             if hasattr(obj, "item") and not isinstance(obj, (str, bytes)):
@@ -218,12 +228,132 @@ def load_df(state):
         return serializable_results
     data_path = state['df_info']['filepath']
     target_col = state['df_info']['target']
+    log_event(
+        logger,
+        logging.INFO,
+        "Loading dataset",
+        data_path=data_path,
+        target_col=target_col,
+    )
     df = pd.read_csv(data_path)
     results = analyze_df(df, target_col)
     import pickle
     with open("pickles/df_info_results.pkl", "wb") as f:
         pickle.dump(results, f)
+    log_event(
+        logger,
+        logging.INFO,
+        "Dataset analysis complete",
+        n_rows=results.get("n_rows"),
+        n_cols=results.get("n_cols"),
+    )
     state['df_info'].update(results)
     return {
         "df_info": state['df_info'],
     }
+
+def load_df_fromdf(df, target_col):
+    def analyze_df(df, target_col):
+        from config.config_dicts.imbalance_handler import calculate_imbalance_data
+        shape = df.shape
+        numeric_features = df.select_dtypes(include="number").columns
+        numeric_features = {"count": len(numeric_features),"data": list(numeric_features)}
+        # Pandas .columns returns an Index type, which can cause serialization issues.
+        # To fix, convert to a list before putting in your dict.
+        categorical_cols = df.select_dtypes(include=["object", "string"]).columns
+        categorical_features = {"count": len(categorical_cols),"data": list(categorical_cols)}
+        null_counts = df.isnull().sum()
+        null_percentages = {c: round(v/shape[0] *100,2) for c, v in null_counts.items()}
+        all_stats = {}
+        if target_col in df.columns:
+            class_dist = df[target_col].value_counts()
+            class_percentages = {}
+            for item, cnt in class_dist.items():
+                class_percentages[item] = {
+                    "count": cnt,
+                    "pct": round(cnt / sum(class_dist.values) * 100,2)
+                }
+        numeric_stats = {}
+        cat_stats = {}
+        for item in numeric_features["data"]:
+            column = df[item].dropna()
+            q1, q3 = column.quantile(0.25), column.quantile(0.75)
+            iqr = q3 - q1
+            lower = q1 - 1.5 * iqr
+            upper = q3 + 1.5 * iqr
+            outlier_count = int(((column < lower) | (column > upper)).sum())
+            col_dict = {
+                "type": "numeric",
+                "mean": round(float(df[item].mean()),4),
+                "std": float(df[item].std()),
+                "min": float(df[item].min()),
+                "max": float(df[item].max()),
+                "skew": float(df[item].skew()),
+                "outlier_count": outlier_count
+            }
+            all_stats[item] = col_dict
+            numeric_stats[item] = col_dict
+
+        for item in categorical_features["data"]:
+            col_dict = {
+                "type": "categorical",
+                "cardinality": df[item].nunique(),
+                "top_values": dict(sorted(df[item].value_counts().items(), key=lambda x: x[1], reverse=True)[:5])
+            }
+            all_stats[item] = col_dict
+            cat_stats[item] = col_dict
+        if target_col in df.columns:
+            ir, norm_entropy, is_imbalanced = calculate_imbalance_data(shape[0], class_dist)
+        
+        # Convert non-serializable numpy types (e.g., numpy.float64, pandas Series) to built-in Python types for msgpack
+        def safe_convert(obj):
+            if hasattr(obj, "item") and not isinstance(obj, (str, bytes)):
+                try:
+                    return obj.item()
+                except Exception:
+                    return obj
+            elif isinstance(obj, dict):
+                return {safe_convert(k): safe_convert(v) for k, v in obj.items()}
+            elif isinstance(obj, (list, tuple, set)):
+                return [safe_convert(i) for i in obj]
+            else:
+                return obj
+
+        serializable_results = {
+            "n_rows": int(shape[0]),
+            "n_cols": int(shape[1]),
+            "numeric_features": safe_convert(numeric_features),
+            "categorical_features": safe_convert(categorical_features),
+            "numeric_stats": safe_convert(numeric_stats),
+            "categorical_stats": safe_convert(cat_stats),
+            "null_percentages": safe_convert(null_percentages),
+            "Dataset Description": safe_convert(all_stats),
+            "correlation_matrix": safe_convert(df[numeric_features["data"]].corr().to_dict()),
+            "Sample Data": safe_convert(df.head().to_dict()),
+            "null_counts": safe_convert(null_counts.to_dict() if hasattr(null_counts, "to_dict") else null_counts),
+        }
+        if target_col in df.columns:
+            serializable_results["Class Distributions"] = safe_convert(class_percentages)
+            serializable_results["Normalized Entropy"] = float(norm_entropy) if isinstance(norm_entropy, float) or hasattr(norm_entropy, "item") else norm_entropy
+            serializable_results["is_imbalanced"] = bool(is_imbalanced)
+            serializable_results["imbalance_ratio"] = float(ir) if isinstance(ir, float) or hasattr(ir, "item") else ir,
+            
+        return serializable_results
+    log_event(
+        logger,
+        logging.INFO,
+        "Loading dataset",
+        target_col=target_col,
+    )
+    results = analyze_df(df, target_col)
+    import pickle
+    with open("pickles/df_info_results.pkl", "wb") as f:
+        pickle.dump(results, f)
+    log_event(
+        logger,
+        logging.INFO,
+        "Dataset analysis complete",
+        n_rows=results.get("n_rows"),
+        n_cols=results.get("n_cols"),
+    )
+    return results

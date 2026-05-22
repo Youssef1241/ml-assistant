@@ -7,7 +7,7 @@ from scipy.stats import entropy
 # from imblearn.combine import SMOTETomek
 # from imblearn.under_sampling import RandomUnderSampler
 # from imblearn.over_sampling import RandomOverSampler, SMOTE, ADASYN
-from config.model import Options, Prompts,small_model, FullPayload
+from config.model import Options, Prompts, FullPayload
 
 load_dotenv()
 
@@ -87,11 +87,12 @@ imbalance_config = {
 
             - You will also create a prompt for the user (in the prompts attribute (just one string item in the list)) explaining that there was an imbalance detected and that these are the recommended ways to solve it
 
+            - in the beginning, create a ### heading named Imbalance Handling, then put your prompt
+
             - Use markdown for good stylization and professional language
 
         """,
         "schema": FullPayload,
-        "model": small_model,
         "output_name": "imb0",
         "data_demands": ['imbalance_ratio','Normalized Entropy', 'Class Distributions', 'n_rows', 'n_cols', 'numeric_features', 'categorical_features', 'data_description','metrics', 'models'],
     }],

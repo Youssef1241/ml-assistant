@@ -3,13 +3,39 @@ import os
 import pandas as pd
 from dotenv import load_dotenv
 from pandas import DataFrame
+import logging
+from logging_utils import get_logger, log_event
+from state import load_df, load_df_fromdf
 
 load_dotenv()
+logger = get_logger(__name__)
+
+def null_handling(state):
+    log_event(logger, logging.INFO, "null_handling start")
+    df = pd.read_csv(state["df_info"]["filepath"])
+    logs, df = update_nulls(state, df)
+    df.to_csv(state["df_info"]["filepath"], index=False)
+
+    state["df_info"].update(load_df_fromdf(df, state['df_info']['target']))
+
+    import pickle
+    pickle.dump(logs, open("pickles/null_handling.pkl", "wb"))
+    pickle.dump(df.isnull().sum(), open(f"pickles/null_count_after_null_handling.pkl", "wb"))
+
+    return state
+
+def after_null_handling(state):
+    import pickle 
+    pickle.dump(state, open("pickles/after_null_handling.pkl", "wb"))
+    return state
 
 def update_nulls(state, df):
-    impute_columns = state["user_choice"]["null_columns"]["fill_with_average"]
-    drop_columns = state["user_choice"]["null_columns"]["drop_column"]
-    drop_rows = state["user_choice"]["null_columns"]["drop_rows"]
+    impute_columns = state["user_choice"]["null_columns"]["null_columns"]["fill_with_average"]
+    drop_columns = state["user_choice"]["null_columns"]["null_columns"]["drop_column"]
+    drop_rows = state["user_choice"]["null_columns"]["null_columns"]["drop_rows"]
+
+    log_event(logger,logging.INFO,"update_nulls start",impute_count=len(impute_columns),drop_columns_count=len(drop_columns),drop_rows_count=len(drop_rows))
+    
     impute_response, df = _replace_with_avg(impute_columns, df) if len(impute_columns) > 0 else []
     col_drop_response, df = _drop_column(drop_columns, df) if len(drop_columns) > 0 else []
     row_drop_response, df = _drop_all_rows(drop_rows, df) if len(drop_rows) > 0 else []
@@ -38,6 +64,7 @@ def _replace_with_avg(columns: list, df: DataFrame) -> (str, DataFrame):
                 f"Replaced {null_count} null values in column '{column}' with average value {avg_val:.4f}."
             )
         except Exception as e:
+            log_event(logger, logging.ERROR, "replace_with_avg failed", column=column, error=str(e))
             return f"Error processing column '{column}': {e}"
     loglist.append(f"Replaced {total_null_count} null values in columns '{columns}'.")
     return loglist, df;
@@ -54,8 +81,10 @@ def _drop_column(columns: list, df: DataFrame) -> (str, DataFrame):
             drop_columns.append(column)
         df.drop(columns=drop_columns, inplace=True)
         loglist.append( f"Columns '{drop_columns}' dropped successfully.")
+        log_event(logger, logging.INFO, "Columns dropped", columns=drop_columns)
         return loglist, df;
     except Exception as e:
+        log_event(logger, logging.ERROR, "drop_column failed", columns=drop_columns, error=str(e))
         return f"Error dropping columns '{drop_columns}': {e}"
 
 def _drop_all_rows(columns: str, df: DataFrame) -> (str, DataFrame):
@@ -76,6 +105,7 @@ def _drop_all_rows(columns: str, df: DataFrame) -> (str, DataFrame):
             total_rows_removed += rows_removed
             loglist.append( f"Dropped {rows_removed} rows with null values in column '{column}'.")
         except Exception as e:
+            log_event(logger, logging.ERROR, "drop_all_rows failed", column=column, error=str(e))
             return f"Error dropping rows for column '{column}': {e}"
     loglist.append( f"Dropped {total_rows_removed} rows with null values in columns '{columns}'.")
     return loglist, df;

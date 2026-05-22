@@ -1,4 +1,4 @@
-from config.model import small_model, FullPayload
+from config.model import FullPayload
 
 
 scaling_config = {
@@ -11,8 +11,7 @@ scaling_config = {
 
             - You must choose between: ["StandardScaler", "RobustScaler"] or no scaling at all
 
-            - You will fill actions attribute with three keys: one for each scaling method and one for no scaling "no_scaling", the value of the key will be a list of the models you recommend to scale this with, models have been given in the context above
-
+            - You will fill actions attribute with three keys: one for each scaling method and one for no scaling "no_scaling", the value of the key will be a list of the models you recommend to scale this with, models have been given in the context above. only fill each model in one method, do not fill the same model twice
 
             - Copy the names exactly in the dict
 
@@ -20,11 +19,13 @@ scaling_config = {
 
             - You will also create a prompt for the user (in the prompts attribute (just one string item in the list)) asking them to choose a scaling method for each model, while mentioning and explaining your recommendation
 
+            - in the beginning, create a ### heading named Scaling, then put your prompt, also dont mention you are an expert data scientist
+
             - Use markdown for good stylization and professional language
+
 
         """,
         "schema": FullPayload,
-        "model": small_model,
         "output_name": "sca0",
         "data_demands": ['n_rows', 'n_cols',  'numeric_stats', 'models'],
     }],
