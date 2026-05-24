@@ -599,9 +599,9 @@ with center_container:
         elif message_type == "popup":
             @st.dialog("Choose an API Provider", width = "large")
             def choose_model():
-                cols = st.columns(6)
+                buttons = ["OpenAI", "Anthropic", "Google Gemini", "Azure OpenAI", "MistralAI"]
+                cols = st.columns(len(buttons))
                 st.markdown("It is recommended to use MistralAI `mistral-medium-3-5` model for this task, it is available free for inference. Other models might misbehave")
-                buttons = ["OpenAI", "Anthropic", "Google Gemini", "Azure OpenAI", "Groq", "MistralAI"]
                 for i, label in enumerate(buttons):
                     with cols[i]:
                         if st.button(label, use_container_width=True):

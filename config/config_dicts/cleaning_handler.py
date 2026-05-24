@@ -18,10 +18,12 @@ clean_config = {
                 - replace_sentinels: value: a list of column names that need sentinel values to be replaced
             you will also provide reasoning for your actions in the reasoning key
             you will also create a prompt for the user (in the prompts attribute (just one string item in the list)) providing your recommendations, and explaining why you chose them, and ask the user whether they want to proceed
+            dont add the target column to the list of columns to be processed
+
             """,
             "schema": FullPayload,
             "output_name": "cle0",
-            "data_demands": ["issues", "numeric_stats", "categorical_stats"]
+            "data_demands": ["issues", "numeric_stats", "categorical_stats", "target_column", "data_description", "models"],
         }
     ],
     "interrupt_name": ["cleaning"],

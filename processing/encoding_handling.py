@@ -17,11 +17,11 @@ logger = get_logger(__name__)
 
 
 encoding_config = {
-        "one_hot":{"encoding-class": OneHotEncoder,"params": {"sparse_output": False}},
-        "ordinal_encoding":{"encoding-class": OrdinalEncoder,"params": {}},
-        "binary_encoding":{"encoding-class": BinaryEncoder,"params": {}},
-        "frequency_encoding":{"encoding-class": CountEncoder,"params": {}},
-        "target_encoding":{"encoding-class": TargetEncoder,"params": {}},
+        "one_hot":{"encoding-class": OneHotEncoder,"params": {"sparse_output": False, "handle_unknown": 'ignore'}},
+        "ordinal_encoding":{"encoding-class": OrdinalEncoder,"params": {"handle_unknown": 'use_encoded_value', "unknown_value": -1}},
+        "binary_encoding":{"encoding-class": BinaryEncoder,"params": {"handle_unknown":'value'}},
+        "frequency_encoding":{"encoding-class": CountEncoder,"params": {"handle_unknown":'value'}},
+        "target_encoding":{"encoding-class": TargetEncoder,"params": {"handle_unknown":'value'}},
         }
 scaling_config ={
     "StandardScaler": { "scaling-class": StandardScaler, "params": {}},

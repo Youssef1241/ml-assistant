@@ -24,7 +24,7 @@ def make_report(state: dict) -> str:
 #     issues["duplicates"] = report_duplicates(df)
 #     return issues
 
-KNOWN_NUMERIC_SENTINELS = {-1, 0, 999, 9999, -9999, 99, -99, 999999, -999999, 9999999}
+KNOWN_NUMERIC_SENTINELS = {-1, 999, 9999, -9999, 99, -99, 999999, -999999, 9999999}
 KNOWN_STRING_SENTINELS = {
     "n/a", "na", "none", "null", "nil", "missing", "unknown",
     "?", "-", "--", "nan", "undefined", "not available", "n.a.", ""

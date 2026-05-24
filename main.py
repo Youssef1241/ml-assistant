@@ -271,16 +271,17 @@ def build_hitl_subgraph(config: dict, orderlist: list):
             options_dict = struct_model.invoke(messages)
         except Exception as e:
             import traceback
+
             error_info = {
                 "type": type(e).__name__,
                 "message": str(e),
                 "traceback": traceback.format_exc(),
-                # For HTTPStatusError specifically:
                 "status_code": getattr(getattr(e, "response", None), "status_code", None),
                 "response_text": getattr(getattr(e, "response", None), "text", None),
                 "request_url": getattr(getattr(e, "request", None), "url", None),
             }
             pickle.dump(error_info, open("pickles/exception.pkl", "wb"))
+            raise RuntimeError(f"struct_model.invoke failed: {error_info}") from e
         # logger.info("Response: " + str(options_dict)) 
         import pickle
         struct_dict = state['struct']

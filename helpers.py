@@ -19,7 +19,6 @@ def create_model_instance(model_info):
     import streamlit as st
     from langchain_openai import ChatOpenAI, AzureChatOpenAI
     from langchain_anthropic import ChatAnthropic
-    from langchain_groq import ChatGroq
     from langchain_google_genai import ChatGoogleGenerativeAI
     from langchain_mistralai import ChatMistralAI
     choice = model_info["choice"]
@@ -34,8 +33,6 @@ def create_model_instance(model_info):
         llm_model = ChatOpenAI(api_key=model_info["api_key"], model=model_info["model"],)
     elif choice == "Anthropic":
         llm_model = ChatAnthropic(api_key=model_info["api_key"], model=model_info["model"])
-    elif choice == "Groq":
-        llm_model = ChatGroq(api_key=model_info["api_key"], model=model_info["model"])
     elif choice == "Google Gemini":
         llm_model = ChatGoogleGenerativeAI(api_key=model_info["api_key"], model=model_info["model"])
     elif choice == "MistralAI":

@@ -14,11 +14,12 @@ encoding_config = {
             - ALL CATEGORICAL COLUMNS MUST BE RECOMMENDED FOR ENCODING, IF A CATEGORICAL COLUMN IS NOT IN YOUR ANSWER, YOU WILL RECEIVE A PENALTY
 
             - you will also provide reasoning for your actions in the reasoning key
+            - do not include the target column in your answer
 
         """,
         "schema": Options,
         "output_name": "enc0",
-        "data_demands": ['n_rows', 'n_cols', 'categorical_stats','data_description', 'models'],
+        "data_demands": ['n_rows', 'n_cols', 'categorical_stats','data_description', 'models', "target_column"],
     },
     {
         "prompt": """
