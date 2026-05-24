@@ -1,5 +1,6 @@
 import os
 import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import uuid
 import json
 import logging
@@ -8,7 +9,6 @@ import streamlit as st
 from start_agent import *
 from collections import defaultdict
 from logging_utils import get_logger, log_event, log_values_with_types
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 st.set_page_config(layout="wide")
 left_pad, center_container, right_pad = st.columns([1, 4, 1])
