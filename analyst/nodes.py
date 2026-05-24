@@ -6,7 +6,6 @@ import time
 import logging
 from dotenv import load_dotenv
 import pandas as pd
-from helpers import use_persistent
 from logging_utils import get_logger, log_event
 from analyst.tools import tools
 load_dotenv()

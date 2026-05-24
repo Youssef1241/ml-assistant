@@ -108,11 +108,8 @@ def report_generator(state: dict, config: RunnableConfig):
         streamed = True
         result = chunk if result is None else result + chunk
     if not streamed:
-        # Safety fallback so downstream logic never receives None.
         result = model.invoke(messages_to_send)
     
-    # result = model.invoke(messages_to_send)
-    # result = use_persistent(model,"report_generator_results.pkl", messages_to_send)
     log_event(logger,logging.INFO,"Report generation call complete",elapsed_ms=int((time.perf_counter() - started_at) * 1000),)
     
     return {
