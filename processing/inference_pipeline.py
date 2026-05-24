@@ -30,7 +30,7 @@ class InferencePipeline(BaseEstimator, ClassifierMixin):
         for method, cols in choices_dict.items():
             for col in cols:
                 encoder = self.encoders[method][col]
-                if method in ('one-hot', 'binary-encoding'):
+                if method in ('one_hot', 'binary_encoding'):
                     encoded = encoder.transform(X[[col]])
                     encoded_df = pd.DataFrame(encoded,columns=encoder.get_feature_names_out([col]),index=X.index,)
                     X = X.drop(col, axis=1)
@@ -64,7 +64,7 @@ class InferencePipeline(BaseEstimator, ClassifierMixin):
         for method, cols in choices_dict.items():
             for col in cols:
                 encoder = self.encoders[method][col]
-                if method in ('one-hot', 'binary-encoding'):
+                if method in ('one_hot', 'binary_encoding'):
                     encoded = encoder.transform(X[[col]])
                     encoded_df = pd.DataFrame(encoded, columns=encoder.get_feature_names_out([col]))
                     X = X.drop(col, axis=1)

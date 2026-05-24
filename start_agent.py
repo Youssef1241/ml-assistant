@@ -50,6 +50,8 @@ def start_agent(config, file_path=None, data_description=None, target=None):
 def continue_agent(config, payload):
     log_event(logger,logging.INFO,"continue_agent invoked",thread_id=config.get("configurable", {}).get("thread_id"),payload_type=type(payload).__name__,)
     payload = agent.invoke(Command(resume=payload),config=config)
+    print(type(payload))
+    print("PAYLOAD: ",payload)
     interrupt_payload = payload["__interrupt__"]
     log_event(logger,logging.INFO,"continue_agent non-stream complete",has_interrupt=bool(interrupt_payload),)
     return interrupt_payload[0].value if interrupt_payload else None

@@ -100,6 +100,15 @@ def route_sampling(state):
     else:
         return 'hp'
 
+def reroute_null(state):
+    null_counts = state['df_info']['null_counts']
+    nulls = sum(list(null_counts.values()))
+    if nulls > 0:
+        return 'null'
+    else:
+        return 'metric'
+
+
 def subgraph_reset(state):
     return {
         "subgraph": 0
@@ -129,6 +138,7 @@ def prompt_generator(
         "null_columns",
         "skew",
         "scaling",
+        "target_column"
     ]]
 ):
     df_info = state['df_info']
@@ -151,7 +161,7 @@ def load_df(state):
         numeric_features = {"count": len(numeric_features),"data": list(numeric_features)}
         # Pandas .columns returns an Index type, which can cause serialization issues.
         # To fix, convert to a list before putting in your dict.
-        categorical_cols = df.select_dtypes(include=["object", "string"]).columns
+        categorical_cols = df.select_dtypes(include=["object", "string", "category"]).columns
         categorical_features = {"count": len(categorical_cols),"data": list(categorical_cols)}
         null_counts = df.isnull().sum()
         null_percentages = {c: round(v/shape[0] *100,2) for c, v in null_counts.items()}
@@ -224,6 +234,7 @@ def load_df(state):
             "Normalized Entropy": float(norm_entropy) if isinstance(norm_entropy, float) or hasattr(norm_entropy, "item") else norm_entropy,
             "is_imbalanced": bool(is_imbalanced),
             "null_counts": safe_convert(null_counts.to_dict() if hasattr(null_counts, "to_dict") else null_counts),
+            "target_column": target_col
         }
         return serializable_results
     data_path = state['df_info']['filepath']
@@ -260,7 +271,7 @@ def load_df_fromdf(df, target_col):
         numeric_features = {"count": len(numeric_features),"data": list(numeric_features)}
         # Pandas .columns returns an Index type, which can cause serialization issues.
         # To fix, convert to a list before putting in your dict.
-        categorical_cols = df.select_dtypes(include=["object", "string"]).columns
+        categorical_cols = df.select_dtypes(include=["object", "string", "category"]).columns
         categorical_features = {"count": len(categorical_cols),"data": list(categorical_cols)}
         null_counts = df.isnull().sum()
         null_percentages = {c: round(v/shape[0] *100,2) for c, v in null_counts.items()}
@@ -331,6 +342,7 @@ def load_df_fromdf(df, target_col):
             "correlation_matrix": safe_convert(df[numeric_features["data"]].corr().to_dict()),
             "Sample Data": safe_convert(df.head().to_dict()),
             "null_counts": safe_convert(null_counts.to_dict() if hasattr(null_counts, "to_dict") else null_counts),
+            "target_column": target_col
         }
         if target_col in df.columns:
             serializable_results["Class Distributions"] = safe_convert(class_percentages)

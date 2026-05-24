@@ -16,13 +16,14 @@ skew_config = {
 
             - You will also create a prompt for the user (in the prompts attribute (just one string item in the list)) asking them to choose the columns they would like to process for skewing, while mentioning and explaining your recommendation
 
+            - dont add the target column to the list of columns to be skewed
             - Use markdown for good stylization and professional language
             only yeo-johnson transformation will be used, dont mention other kinds
 
         """,
         "schema": FullPayload,
         "output_name": "ske0",
-        "data_demands": ['n_rows', 'n_cols',  'numeric_stats', 'metrics', 'models'],
+        "data_demands": ['n_rows', 'n_cols',  'numeric_stats', 'metrics', 'models', "target_column"],
     }],
     "interrupt_name": ["skew"],
     }

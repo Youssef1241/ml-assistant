@@ -11,6 +11,7 @@ encoding_config = {
             "frequency_encoding", "target_encoding"]
 
             - You will fill actions attribute with 5 keys, one for each encoding method, copy the names exactly as given above. For each key add a list of the column names that you recommend this method for. do not add one column name more than once in more than one key.
+            - ALL CATEGORICAL COLUMNS MUST BE RECOMMENDED FOR ENCODING, IF A CATEGORICAL COLUMN IS NOT IN YOUR ANSWER, YOU WILL RECEIVE A PENALTY
 
             - you will also provide reasoning for your actions in the reasoning key
 

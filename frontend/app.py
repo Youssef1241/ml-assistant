@@ -16,7 +16,7 @@ left_pad, center_container, right_pad = st.columns([1, 4, 1])
 st.set_page_config(page_title="ML Assistant", page_icon="🤖")
 with center_container:
     st.title("ML Assistant")
-    st.markdown("Welcome to the ML Assistant! This tool will help you with your ML tasks.")
+    st.markdown("Welcome to the ML Assistant! This tool will guide you through the machine learning pipeline")
     logger = get_logger(__name__)
 
     if "step" not in st.session_state:
@@ -99,8 +99,27 @@ with center_container:
                 with st.chat_message("assistant"):
                     with st.spinner("Analyzing the data..."):
                         st.write_stream(capture_start_agent())
-                st.session_state.start_report = "".join(start_chunks)
-
+                if type(start_chunks) == str:
+                    st.session_state.start_report = start_chunks
+                else:
+                    texts = []
+                    for chunk in start_chunks:
+                        if isinstance(chunk, str):
+                            texts.append(chunk)
+                        elif isinstance(chunk, dict):
+                            # Gemini returns AIMessageChunk as dict — extract content
+                            texts.append(chunk.get("content", "") or chunk.get("text", "") or "")
+                        elif isinstance(chunk, list):
+                            for item in chunk:
+                                if isinstance(item, str):
+                                    texts.append(item)
+                                elif isinstance(item, dict):
+                                    texts.append(item.get("content", "") or item.get("text", "") or "")
+                    st.session_state.start_report = "".join(texts) 
+                nulls = df.isnull().sum().sum()
+                st.session_state.nulls = nulls
+                rows = df.shape[0]
+                st.session_state.rows = rows
                 if next_message["type"] == "multi-choice":
                     next_message["options"] = json.loads(st.session_state.interrupt_payload[0].value["struct"][next_message["node_name"][0]])
                     next_message["prompts"] = json.loads(st.session_state.interrupt_payload[0].value["struct"][next_message["node_name"][1]])
@@ -108,6 +127,7 @@ with center_container:
                     next_message["options"] = st.session_state.interrupt_payload[0].value["interrupt_message"]
                 else:
                     next_message["options"] = json.loads(st.session_state.interrupt_payload[0].value["struct"][next_message["node_name"]])
+
                 st.session_state.step += 1
                 st.rerun()
 
@@ -175,6 +195,9 @@ with center_container:
                             # import pickle
                             # interrupt_payload = pickle.load(open("pickles/interrupt_payload_hp.pkl", "rb"))
                     log_values_with_types(logger,logging.INFO,"filter continue_agent interrupt",interrupt_payload=interrupt_payload,)
+                    if st.session_state.rows <= 2000:
+                        st.session_state.step += 1
+                    next_message = st.session_state.messages_order[st.session_state.step + 1]
                     if next_message["type"] == "multi-choice" or next_message["type"] == "hp":
                         next_message["options"] = json.loads(interrupt_payload["struct"][next_message["node_name"][0]])
                         next_message["prompts"] = json.loads(interrupt_payload["struct"][next_message["node_name"][1]])
@@ -379,6 +402,7 @@ with center_container:
                     elif next_message["type"] == "choice":
                         next_message["options"] = interrupt_payload["interrupt_message"]
                     else:
+                        print('look for scaling sca0', interrupt_payload['struct'])
                         next_message["options"] = json.loads(interrupt_payload["struct"][next_message["node_name"]])
                     st.session_state.step += 1
                     st.rerun()
@@ -576,6 +600,7 @@ with center_container:
             @st.dialog("Choose an API Provider", width = "large")
             def choose_model():
                 cols = st.columns(6)
+                st.markdown("It is recommended to use MistralAI `mistral-medium-3-5` model for this task, it is available free for inference. Other models might misbehave")
                 buttons = ["OpenAI", "Anthropic", "Google Gemini", "Azure OpenAI", "Groq", "MistralAI"]
                 for i, label in enumerate(buttons):
                     with cols[i]:
@@ -619,7 +644,7 @@ with center_container:
             selected = {action: [] for action in actions}
             for i, action in enumerate(actions):
                 if options[action] != []:
-                    st.markdown(convert_from_snake_case(action))
+                    st.markdown("**" + convert_from_snake_case(action) + "**")
                 for col in options[action]: 
                     if st.checkbox(label=convert_from_snake_case(col), value=True, key=action + col):
                         selected[action].append(col)
@@ -634,6 +659,10 @@ with center_container:
                     with st.spinner("Processing..."):
                         interrupt_payload = continue_agent(config, response_payload)
                 log_values_with_types(logger,logging.INFO,"cleaning continue_agent interrupt",interrupt_payload=interrupt_payload,)
+                
+                if st.session_state.nulls <= 0:
+                    st.session_state.step += 1
+                next_message = st.session_state.messages_order[st.session_state.step + 1]
                 if next_message["type"] == "multi-choice":
                     next_message["options"] = json.loads(interrupt_payload["struct"][next_message["node_name"][0]])
                     next_message["prompts"] = json.loads(interrupt_payload["struct"][next_message["node_name"][1]])

@@ -270,13 +270,24 @@ def build_hitl_subgraph(config: dict, orderlist: list):
         try:
             options_dict = struct_model.invoke(messages)
         except Exception as e:
-            logger.error(e)
+            import traceback
+            error_info = {
+                "type": type(e).__name__,
+                "message": str(e),
+                "traceback": traceback.format_exc(),
+                # For HTTPStatusError specifically:
+                "status_code": getattr(getattr(e, "response", None), "status_code", None),
+                "response_text": getattr(getattr(e, "response", None), "text", None),
+                "request_url": getattr(getattr(e, "request", None), "url", None),
+            }
+            pickle.dump(error_info, open("pickles/exception.pkl", "wb"))
         # logger.info("Response: " + str(options_dict)) 
         import pickle
-        with open(f"pickles/scaling{node_count}.pkl", "wb") as f:
-            pickle.dump(options_dict, f)
         struct_dict = state['struct']
+
         struct_dict[current_struct["output_name"]] = options_dict.model_dump_json()
+        with open(f"pickles/scaling{node_count}.pkl", "wb") as f:
+            pickle.dump([current_struct["output_name"], struct_dict], f)
         
         return {
             "struct": struct_dict,
@@ -360,49 +371,66 @@ metric_subgraph = build_hitl_subgraph(metrics_config, ["struct",'interrupt'])
 model_subgraph = build_hitl_subgraph(models_config, ["struct",'interrupt'])
 encoding_subgraph = build_hitl_subgraph(encoding_config, ["struct",'struct','interrupt'])
 skew_subgraph = build_hitl_subgraph(skew_config, ['struct','interrupt'])
-imbalance_subgraph = build_hitl_subgraph(imbalance_config, ['struct','interrupt'])
 scaling_subgraph = build_hitl_subgraph(scaling_config, ['struct','interrupt'])
-final_subgraph = build_hitl_subgraph(final_config, ['struct','interrupt'])
-hp_subgraph = build_hitl_subgraph(hp_config, ['struct','struct','interrupt'])
+imbalance_subgraph = build_hitl_subgraph(imbalance_config, ['struct','interrupt'])
 filter_subgraph = build_hitl_subgraph(filter_config, ['update', 'struct','interrupt'])
+hp_subgraph = build_hitl_subgraph(hp_config, ['struct','struct','interrupt'])
+final_subgraph = build_hitl_subgraph(final_config, ['struct','interrupt'])
 sampling_subgraph = build_hitl_subgraph(sampling_config, ['interrupt'])
 
 agent_builder.add_node("analyst", analyst_call)
 agent_builder.add_node("analyst_tools", analyst_tool_node)
+# agent_builder.add_node("df info",load_df)
+# agent_builder.add_node("null", null_subgraph)
+# agent_builder.add_node("metric", metric_subgraph)
+# agent_builder.add_node("model", model_subgraph)
+# agent_builder.add_node("encoding", encoding_subgraph)
+# agent_builder.add_node("skew", skew_subgraph)
+# agent_builder.add_node("scaling", scaling_subgraph)
+# agent_builder.add_node("imbalance", imbalance_subgraph)
+# agent_builder.add_node("allto6", filter_subgraph)
+# agent_builder.add_node("hp", hp_subgraph)
+# agent_builder.add_node("sampling", sampling_subgraph)
+# agent_builder.add_node("train", train_and_test)
+# agent_builder.add_node("6to3", final_subgraph)
+
 agent_builder.add_node("df info",load_df)
-agent_builder.add_node("null", load_null)
-agent_builder.add_node("metric", load_metric)
-agent_builder.add_node("model", load_model)
-agent_builder.add_node("encoding", load_encoding)
-agent_builder.add_node("skew", load_skew)
-agent_builder.add_node("scaling", load_scaling)
-agent_builder.add_node("imbalance", load_imbalance)
-agent_builder.add_node("allto6", load_allto6)
-agent_builder.add_node("hp", load_hp)
+agent_builder.add_node("null", null_subgraph)
+agent_builder.add_node("metric", metric_subgraph)
+agent_builder.add_node("model", model_subgraph)
+agent_builder.add_node("encoding", encoding_subgraph)
+agent_builder.add_node("skew", skew_subgraph)
+agent_builder.add_node("scaling", scaling_subgraph)
+agent_builder.add_node("imbalance", imbalance_subgraph)
+agent_builder.add_node("allto6", filter_subgraph)
+agent_builder.add_node("hp", hp_subgraph)
 agent_builder.add_node("sampling", sampling_subgraph)
 agent_builder.add_node("train", train_and_test)
-agent_builder.add_node("6to3", load_6to3)
+agent_builder.add_node("6to3", final_subgraph)
+
+
 agent_builder.add_node('eval report', reporter_call)
 agent_builder.add_node('interrupt', ask_user)
 agent_builder.add_node("create pipeline", create_pipeline)
 agent_builder.add_node("final report", report_generator)
-agent_builder.add_node("train_full_data", load_train_full_data)
+agent_builder.add_node("train_full_data", train_and_test)
 # agent_builder.add_node("saver", saver)
-agent_builder.add_node("scaling saver", scaling_saver) 
-agent_builder.add_node("imbalance saver", imbalance_saver)
-agent_builder.add_node("allto6 saver", allto6_saver)
-agent_builder.add_node("hp saver", hp_saver)
-agent_builder.add_node("train saver", train_saver)
-agent_builder.add_node("6to3 saver", sixto3_saver)
-agent_builder.add_node("train full saver", train_full_data_saver)
+# agent_builder.add_node("scaling saver", scaling_saver) 
+# agent_builder.add_node("imbalance saver", imbalance_saver)
+# agent_builder.add_node("allto6 saver", allto6_saver)
+# agent_builder.add_node("hp saver", hp_saver)
+# agent_builder.add_node("train saver", train_saver)
+# agent_builder.add_node("6to3 saver", sixto3_saver)
+# agent_builder.add_node("train full saver", train_full_data_saver)
 # agent_builder.add_node("scaling saver", scaling_saver)
 # agent_builder.add_node("null saver", null_saver)
 # agent_builder.add_node("train saver", train_saver)
+agent_builder.add_node("skew saver", skew_saver)
 agent_builder.add_node("null_handling", null_handling)
 agent_builder.add_node("skew_handling", skew_handling)
 agent_builder.add_node("after_null_handling", after_null_handling)
-agent_builder.add_node("sixto3 saver", sixto3_saver)
-agent_builder.add_node("retrain interrupt", retrain_interrupt)
+# agent_builder.add_node("sixto3 saver", sixto3_saver)
+# agent_builder.add_node("retrain interrupt", retrain_interrupt)
 agent_builder.add_node("gather data", make_report)
 agent_builder.add_node("clean agent", clean_subgraph)
 agent_builder.add_node("clean", clean_data)
@@ -421,16 +449,21 @@ agent_builder.add_edge("gather data", "clean agent")
 agent_builder.add_edge("clean agent", "clean")
 # agent_builder.add_edge("clean", "analyst")
 # agent_builder.add_edge("analyst", "null")
-agent_builder.add_edge("clean", "null")
+# agent_builder.add_edge("clean", "null")
+
+agent_builder.add_conditional_edges(
+    "clean",
+    reroute_null,
+    ["null", "metric"] 
+)
 agent_builder.add_edge("null", "null_handling")
-agent_builder.add_edge("null_handling", "after_null_handling")
-agent_builder.add_edge("after_null_handling", "metric")
+agent_builder.add_edge("null_handling", "metric")
 agent_builder.add_edge("metric", "model")
 agent_builder.add_edge("model", "encoding")
 agent_builder.add_edge("encoding", "skew")
-agent_builder.add_edge("skew", "sampling")
-agent_builder.add_edge("sampling", "skew_handling")
-agent_builder.add_edge("skew_handling","scaling")
+agent_builder.add_edge("skew", "skew_handling")
+agent_builder.add_edge("skew_handling", "skew saver")
+agent_builder.add_edge("skew saver","scaling")
 # agent_builder.add_conditional_edges(
 #     "scaling",
 #     route_imbalance,
@@ -438,11 +471,19 @@ agent_builder.add_edge("skew_handling","scaling")
 # )
 agent_builder.add_edge("scaling", "imbalance")
 agent_builder.add_edge("imbalance", "allto6")
-agent_builder.add_edge("allto6", "hp")
+# agent_builder.add_edge("allto6", "hp")
+
+
+agent_builder.add_conditional_edges(
+    "allto6",
+    route_sampling,
+    ["sampling", "hp"]
+)
+
+agent_builder.add_edge("sampling", "hp")
 # agent_builder.add_edge("hp", "hp saver")
 agent_builder.add_edge("hp", "train")
-agent_builder.add_edge("train", "train saver")
-agent_builder.add_edge("train saver", "6to3")
+agent_builder.add_edge("train", "6to3")
 agent_builder.add_edge("6to3", "train_full_data")
 # agent_builder.add_edge("train_full_data", "train full saver")
 agent_builder.add_edge("train_full_data", "eval report")
@@ -457,11 +498,6 @@ agent_builder.add_conditional_edges(
 agent_builder.add_edge("create pipeline", "final report")
 agent_builder.add_edge("final report", END)
 
-# agent_builder.add_conditional_edges(
-#     "allto6",
-#     route_imbalance,
-#     ["sampling", "hp"]
-# )
 
 
 # agent_builder.add_edge("hp", "train")

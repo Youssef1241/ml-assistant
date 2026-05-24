@@ -102,7 +102,7 @@ def handle_skew(choices_tuple, Xtrain, Xtest, ytrain, ytest, inference_pipeline,
 def handle_scaling(Xtrain, Xtest, ytrain, ytest, method, df_info, inference_pipeline, slug):
     if method == "no_scaling":
         log_event(logger, logging.INFO, "Scaling skipped")
-        return Xtrain, Xtest, ytrain, ytest
+        return Xtrain, Xtest, ytrain, ytest, inference_pipeline
     scaler = scaling_config[method]["scaling-class"]()
     Xtrain = scaler.fit_transform(Xtrain)
     Xtest = scaler.transform(Xtest)
@@ -150,7 +150,7 @@ def skew_handling(state):
     """ Handles encoding then skew """
     log_event(logger, logging.INFO, "skew_handling start")
     user_choice = state['user_choice']
-    sampling = user_choice["sampling"]["sampling"]
+    sampling = user_choice.get('sampling', {}).get('sampling', False)
     df = pd.read_csv(state['df_info']['filepath'], )
 
     df = df.sample(frac = 0.2) if sampling == True else df.sample(frac=0.1)

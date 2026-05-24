@@ -148,6 +148,7 @@ def train(model: Any, item: tuple, slug: str, metrics: dict):
     return metrics_dict, model
 
 def create_visualizations(state, df, trained):
+    os.makedirs("frontend/static", exist_ok=True)
     log_event(logger, logging.INFO, "create_visualizations start", trained_models=len(trained))
     rows = []
     for item in trained:
@@ -178,24 +179,25 @@ def create_visualizations(state, df, trained):
     log_event(logger, logging.INFO, "Saved chart", path="frontend/static/roc_curve.png")
     
     metrics = list(trained[0].keys())[:-3]
-    values = [list(item.values())[:-3] for item in trained]
     N = len(metrics)
-    angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
-    angles += angles[:1]
-    fig, ax = plt.subplots(figsize=(7, 7), subplot_kw=dict(polar=True))
-    colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
-    for i, (model, vals) in enumerate(zip(slugs_list, values)):
-        vals += vals[:1]
-        ax.plot(angles, vals, color=colors[i], linewidth=2, label=model)
-        ax.fill(angles, vals, color=colors[i], alpha=0.1)
-    ax.set_thetagrids(np.degrees(angles[:-1]), metrics)
-    ax.set_ylim(0, 1)
-    ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
-    plt.title('Model Comparison', size=15, pad=20)
-    plt.tight_layout()
-    plt.savefig(f"frontend/static/spider_comparison.png")
-    log_event(logger, logging.INFO, "Saved chart", path="frontend/static/spider_comparison.png")
-    plt.close("all")
+    if N >= 3:
+        values = [list(item.values())[:-3] for item in trained]
+        angles = np.linspace(0, 2 * np.pi, N, endpoint=False).tolist()
+        angles += angles[:1]
+        fig, ax = plt.subplots(figsize=(7, 7), subplot_kw=dict(polar=True))
+        colors = ['#1f77b4', '#ff7f0e', '#2ca02c']
+        for i, (model, vals) in enumerate(zip(slugs_list, values)):
+            vals += vals[:1]
+            ax.plot(angles, vals, color=colors[i], linewidth=2, label=model)
+            ax.fill(angles, vals, color=colors[i], alpha=0.1)
+        ax.set_thetagrids(np.degrees(angles[:-1]), metrics)
+        ax.set_ylim(0, 1)
+        ax.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
+        plt.title('Model Comparison', size=15, pad=20)
+        plt.tight_layout()
+        plt.savefig(f"frontend/static/spider_comparison.png")
+        log_event(logger, logging.INFO, "Saved chart", path="frontend/static/spider_comparison.png")
+        plt.close("all")
 
 def create_pipeline(state: dict):
     inference_pipeline = state['pipeline']

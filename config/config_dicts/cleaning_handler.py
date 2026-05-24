@@ -12,11 +12,10 @@ clean_config = {
                 - If any sentinel values need to be replaced in any columns
 
             You will provide your answer in a dict named actions, with the following keys:
-                - drop_columns: a list of column names that need to be dropped
-                - drop_outliers: a list of columns names where outliers need to be dropped
-                - cast_columns: a list of column names that need to be cast
-                - replace_sentinels: a list of column names that need sentinel values to be replaced
-            you will provide the column names as a list of strings
+                - drop_columns: value: a list of columns names that need to be dropped
+                - drop_outliers: value: a list of columns names that need to be dropped
+                - cast_columns: value: a list of column names that need to be cast
+                - replace_sentinels: value: a list of column names that need sentinel values to be replaced
             you will also provide reasoning for your actions in the reasoning key
             you will also create a prompt for the user (in the prompts attribute (just one string item in the list)) providing your recommendations, and explaining why you chose them, and ask the user whether they want to proceed
             """,

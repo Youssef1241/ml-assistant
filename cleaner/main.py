@@ -1,5 +1,6 @@
 import pandas as pd
 from pandas import DataFrame
+from state import load_df_fromdf
 
 def clean_data(state: dict):
     df = pd.read_csv(state["df_info"]["filepath"])
@@ -8,16 +9,17 @@ def clean_data(state: dict):
     drop_outliers = user_choice.get("drop_outliers", [])
     cast_cols = user_choice.get("cast_columns", [])
     replace_sentinels = user_choice.get("replace_sentinels", [])
-    if drop_cols:
-        df = _drop_column(df, drop_cols)
+    if replace_sentinels:
+        sentinels = state['df_info']['issues']['sentinels']
+        df = _replace_sentinels(df, replace_sentinels, sentinels)
     if drop_outliers:
         df = _drop_outliers(df, drop_outliers)
     if cast_cols:
         issues = state['df_info']['issues']['issues']
         df = _cast_to_dtypes(df, cast_cols, issues)
-    if replace_sentinels:
-        sentinels = state['df_info']['issues']['sentinels']
-        df = _replace_sentinels(df, replace_sentinels, sentinels)
+    if drop_cols:
+        df = _drop_column(df, drop_cols)
+    state["df_info"].update(load_df_fromdf(df, state['df_info']['target']))
     df.to_csv(state["df_info"]["filepath"], index=False)
     return state
 

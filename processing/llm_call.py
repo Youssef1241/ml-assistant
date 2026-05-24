@@ -16,26 +16,9 @@ def reporter_call(state: dict, config: RunnableConfig):
     context = "Context: \n"
     context += str(state['update']['model_metrics']) + "\n\n"
     messages_to_send = [
-        # SystemMessage(content=context),
-        # HumanMessage(content=
-        # """
-        #             You are an expert data scientist and handler tasked with recommending actions to a user
-        #             Your instructions: 
-        #                 - The context provides model specs and their evaluation metrics. Recommend the most promising model for the user to choose
-
-        #                 - The model specs will be in the slug format: scaling_method-model-imbalance_handling_method, in this order
-
-        #                 - You will create a small comparison report for the user for the three models, and their performances
-        #                 you have a bar chart comparing the models and their metrics in this address: app/static/model_metrics_barplot.png, you have a spider diagram comparing the models in this address: app/static/spider_comparison.png, and a roc-auc curve comparing the models in this address: app/static/roc_curve.png, you can use their addresses in their markdown
-
-        #                 at the end of the small report, you will give your recommendation for the user to choose
-        #                 - dont put the raw confusion matrix in the report, you can refer to it or mention numbers in it but dont put it in raw
-
-        #                 - Use markdown for good stylization and professional language
-
-        #                 """)
-        SystemMessage(
-            content=context + """
+        SystemMessage(content=context),
+        HumanMessage(content=
+        """
                     You are an expert data scientist and handler tasked with recommending actions to a user
                     Your instructions: 
                         - The context provides model specs and their evaluation metrics. Recommend the most promising model for the user to choose
@@ -43,13 +26,30 @@ def reporter_call(state: dict, config: RunnableConfig):
                         - The model specs will be in the slug format: scaling_method-model-imbalance_handling_method, in this order
 
                         - You will create a small comparison report for the user for the three models, and their performances
-                        - MAKE IT A VERY SHORT REPORT SINCE THIS IS A TESTING PHASE TO AVOID COST
+                        you have a bar chart comparing the models and their metrics in this address: app/static/model_metrics_barplot.png, you have a spider diagram comparing the models in this address: app/static/spider_comparison.png (only show the spider diagram if there are more than three metrics chosen, else just ignore it), and a roc-auc curve comparing the models in this address: app/static/roc_curve.png, you can use their addresses in their markdown
 
+                        at the end of the small report, you will give your recommendation for the user to choose
+                        - dont put the raw confusion matrix in the report, you can refer to it or mention numbers in it but dont put it in raw
 
                         - Use markdown for good stylization and professional language
 
-                        """
-        )
+                        """)
+        # SystemMessage(
+        #     content=context + """
+        #             You are an expert data scientist and handler tasked with recommending actions to a user
+        #             Your instructions: 
+        #                 - The context provides model specs and their evaluation metrics. Recommend the most promising model for the user to choose
+
+        #                 - The model specs will be in the slug format: scaling_method-model-imbalance_handling_method, in this order
+
+        #                 - You will create a small comparison report for the user for the three models, and their performances
+        #                 - MAKE IT A VERY SHORT REPORT SINCE THIS IS A TESTING PHASE TO AVOID COST
+
+
+        #                 - Use markdown for good stylization and professional language
+
+        #                 """
+        # )
     ] 
     import pickle
     pickle.dump(messages_to_send, open(f"pickles/eval_report_messages.pkl", "wb"))

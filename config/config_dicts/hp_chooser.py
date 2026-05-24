@@ -69,22 +69,19 @@ hp_config = {
     {
         "prompt": """
 
-            Context: 
+        Context:
+        {context}
+        ---
+        You are part of a machine learning pipeline. Given the context above, call the Prompts tool.
 
-            {context}
-            ---
-            You are part of a team conducting a machine learning pipeline for a user, your task is to look at the context provided and return a list of prompts for the user
-            Your instructions: 
-            - you will generate a prompt for the user for every key in the context, (except reasoning).
-
-            Your prompt will include each hyper parameter value, as well as the given recommendation and the reasoning behind it.
-
-            - create only one prompt for each key, so one prompt for each model
-
-            - in the beginning, create a ### heading with the task, then put your prompt, also provide your reasoning but dont label it "Reasoning:"
-
-            You will use markdown for good stylization and professional language in your answers.
-            """,
+        Instructions:
+        - Generate exactly one prompt string per model in the context.
+        - Each prompt must ask the user to confirm the recommended hyperparameters for that model.
+        - Each prompt must include: the model name, each hyperparameter and its value, and a brief reason.
+        - Use professional language. Format each prompt in markdown.
+        - Do NOT add headings, reasoning sections, or any text outside the tool call.
+        - Return ONLY the tool call with the list of prompt strings.
+        """,
         "schema": Prompts,
         "output_name": "hp1",
         "context_demands": {'struct': 'hp0'}

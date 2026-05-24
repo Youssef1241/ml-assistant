@@ -46,12 +46,6 @@
         "response_tag": "skew"
     },
     {
-        "type": "choice",
-        "node_name": "sam0",
-        "response_tag": "sampling",
-        "options": "> ⚠️ Your dataset has {n_rows} rows. The recommended 20% sample would be {n_rows_20} rows, which may be slow or memory-intensive.\n\n**Would you like to use a smaller 10% sample ({n_rows_10} rows) instead?**\n\n"
-    },
-    {
         "type": "checkbox",
         "node_name": "sca0",
         "response_tag": "scaling"
@@ -65,6 +59,12 @@
         "type": "multi-choice",
         "node_name": ["fil0", "fil1"],
         "response_tag": "filter"
+    },
+    {
+        "type": "choice",
+        "node_name": "sam0",
+        "response_tag": "sampling",
+        "options": "> ⚠️ Your dataset has {n_rows} rows. The recommended 20% sample would be {n_rows_20} rows, which may be slow or memory-intensive.\n\n**Would you like to use a smaller 10% sample ({n_rows_10} rows) instead?**\n\n"
     },
     {
         "type": "hp",

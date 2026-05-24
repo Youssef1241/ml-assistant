@@ -50,5 +50,6 @@ def analyst_call(state: dict, config: RunnableConfig):
     )
     return {
         "messages": [result],
+        # "messages": [result['messages'][4]],
         "llm_calls": state.get('llm_calls', 0) + 1,
     }

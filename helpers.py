@@ -31,7 +31,7 @@ def create_model_instance(model_info):
             api_key=model_info["api_key"],
         )
     elif choice == "OpenAI":
-        llm_model = ChatOpenAI(api_key=model_info["api_key"], model=model_info["model"])
+        llm_model = ChatOpenAI(api_key=model_info["api_key"], model=model_info["model"],)
     elif choice == "Anthropic":
         llm_model = ChatAnthropic(api_key=model_info["api_key"], model=model_info["model"])
     elif choice == "Groq":
@@ -39,5 +39,5 @@ def create_model_instance(model_info):
     elif choice == "Google Gemini":
         llm_model = ChatGoogleGenerativeAI(api_key=model_info["api_key"], model=model_info["model"])
     elif choice == "MistralAI":
-        llm_model = ChatMistralAI(api_key=model_info["api_key"], model=model_info["model"])
+        llm_model = ChatMistralAI(api_key=model_info["api_key"], model=model_info["model"], max_retries = 5)
     return llm_model

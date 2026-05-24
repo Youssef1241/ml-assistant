@@ -30,15 +30,18 @@ def after_null_handling(state):
     return state
 
 def update_nulls(state, df):
-    impute_columns = state["user_choice"]["null_columns"]["null_columns"]["fill_with_average"]
-    drop_columns = state["user_choice"]["null_columns"]["null_columns"]["drop_column"]
-    drop_rows = state["user_choice"]["null_columns"]["null_columns"]["drop_rows"]
+    # Make the saver robust to missing keys in deeply nested dictionaries to avoid KeyError
+    user_choice = state.get("user_choice", {})
+    null_cols_choice = user_choice.get("null_columns", {}).get("null_columns", {})
+    impute_columns = null_cols_choice.get("fill_with_average", [])
+    drop_columns = null_cols_choice.get("drop_column", [])
+    drop_rows = null_cols_choice.get("drop_rows", [])
 
     log_event(logger,logging.INFO,"update_nulls start",impute_count=len(impute_columns),drop_columns_count=len(drop_columns),drop_rows_count=len(drop_rows))
     
-    impute_response, df = _replace_with_avg(impute_columns, df) if len(impute_columns) > 0 else []
-    col_drop_response, df = _drop_column(drop_columns, df) if len(drop_columns) > 0 else []
-    row_drop_response, df = _drop_all_rows(drop_rows, df) if len(drop_rows) > 0 else []
+    impute_response, df = _replace_with_avg(impute_columns, df) if len(impute_columns) > 0 else ([], df)
+    col_drop_response, df = _drop_column(drop_columns, df) if len(drop_columns) > 0 else ([], df)
+    row_drop_response, df = _drop_all_rows(drop_rows, df) if len(drop_rows) > 0 else ([], df)
     return ([impute_response, col_drop_response, row_drop_response], df)
            
         

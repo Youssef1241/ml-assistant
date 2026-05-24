@@ -14,15 +14,10 @@ logger = get_logger(__name__)
 @tool
 def analyse_data(state: dict) -> str:
     """Analyse the data and return a summary"""
-    log_event(
-        logger,
-        logging.INFO,
-        "analyse_data tool start",
-        df_info_keys=list(state.get("df_info", {}).keys()),
-    )
+    log_event(logger,logging.INFO,"analyse_data tool start",df_info_keys=list(state.get("df_info", {}).keys()),)
     output_string = prompt_generator(state, ['Sample Data','n_rows', 'n_cols', 'numeric_features', 'categorical_features', 'all_stats','Class Distributions','null_percentages', 'correlation_matrix'])
 
-    os.makedirs("images", exist_ok=True)
+    os.makedirs("frontend/static", exist_ok=True)
     plt.figure(figsize=(6,6))
     class_dist = state["df_info"]["Class Distributions"]
     class_values = [item["count"] for item in class_dist.values()]
