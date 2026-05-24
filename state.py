@@ -1,13 +1,10 @@
-import os
 import operator
 import pandas as pd
 from typing import Literal
 import logging
-from langgraph.graph import END
-from langgraph.types import interrupt
 from langchain.messages import AnyMessage
 from typing_extensions import TypedDict, Annotated
-from langchain.messages import ToolMessage, HumanMessage
+from langchain.messages import ToolMessage
 from logging_utils import get_logger, log_event
 from typing import Any
 
@@ -145,9 +142,6 @@ def prompt_generator(
     output_string = ""
     for item in demands:
         output_string += item + ": \n"
-        # import json
-        # with open("pickles/df_info.json","w") as f:
-        #     json.dump(df_info['Sample Data'], f)
         output_string += str(df_info.get(item, state.get("user_choice").get(item))) + "\n\n"
     if len(demands) == 0:
         output_string = "Perform the task: \n"
@@ -159,8 +153,6 @@ def load_df(state):
         shape = df.shape
         numeric_features = df.select_dtypes(include="number").columns
         numeric_features = {"count": len(numeric_features),"data": list(numeric_features)}
-        # Pandas .columns returns an Index type, which can cause serialization issues.
-        # To fix, convert to a list before putting in your dict.
         categorical_cols = df.select_dtypes(include=["object", "string", "category"]).columns
         categorical_features = {"count": len(categorical_cols),"data": list(categorical_cols)}
         null_counts = df.isnull().sum()
@@ -204,7 +196,6 @@ def load_df(state):
             cat_stats[item] = col_dict
         ir, norm_entropy, is_imbalanced = calculate_imbalance_data(shape[0], class_dist)
         
-        # Convert non-serializable numpy types (e.g., numpy.float64, pandas Series) to built-in Python types for msgpack
         def safe_convert(obj):
             if hasattr(obj, "item") and not isinstance(obj, (str, bytes)):
                 try:
@@ -248,9 +239,6 @@ def load_df(state):
     )
     df = pd.read_csv(data_path)
     results = analyze_df(df, target_col)
-    import pickle
-    with open("pickles/df_info_results.pkl", "wb") as f:
-        pickle.dump(results, f)
     log_event(
         logger,
         logging.INFO,
@@ -269,8 +257,6 @@ def load_df_fromdf(df, target_col):
         shape = df.shape
         numeric_features = df.select_dtypes(include="number").columns
         numeric_features = {"count": len(numeric_features),"data": list(numeric_features)}
-        # Pandas .columns returns an Index type, which can cause serialization issues.
-        # To fix, convert to a list before putting in your dict.
         categorical_cols = df.select_dtypes(include=["object", "string", "category"]).columns
         categorical_features = {"count": len(categorical_cols),"data": list(categorical_cols)}
         null_counts = df.isnull().sum()
@@ -316,7 +302,6 @@ def load_df_fromdf(df, target_col):
         if target_col in df.columns:
             ir, norm_entropy, is_imbalanced = calculate_imbalance_data(shape[0], class_dist)
         
-        # Convert non-serializable numpy types (e.g., numpy.float64, pandas Series) to built-in Python types for msgpack
         def safe_convert(obj):
             if hasattr(obj, "item") and not isinstance(obj, (str, bytes)):
                 try:
@@ -359,8 +344,6 @@ def load_df_fromdf(df, target_col):
     )
     results = analyze_df(df, target_col)
     import pickle
-    with open("pickles/df_info_results.pkl", "wb") as f:
-        pickle.dump(results, f)
     log_event(
         logger,
         logging.INFO,

@@ -8,9 +8,7 @@ import streamlit as st
 from start_agent import *
 from collections import defaultdict
 from logging_utils import get_logger, log_event, log_values_with_types
-# import sys
-# import os
-# sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 st.set_page_config(layout="wide")
 left_pad, center_container, right_pad = st.columns([1, 4, 1])
 st.set_page_config(page_title="ML Assistant", page_icon="🤖")
@@ -192,8 +190,6 @@ with center_container:
                     with st.chat_message("assistant"):
                         with st.spinner("Processing..."):
                             interrupt_payload = continue_agent(config, response_payload)
-                            # import pickle
-                            # interrupt_payload = pickle.load(open("pickles/interrupt_payload_hp.pkl", "rb"))
                     log_values_with_types(logger,logging.INFO,"filter continue_agent interrupt",interrupt_payload=interrupt_payload,)
                     if st.session_state.rows <= 2000:
                         st.session_state.step += 1
@@ -256,7 +252,6 @@ with center_container:
                 for item in all_options:
                     selected_options[item]= st.checkbox(label=item, value=bool(item in options["actions"]["skewed"]), key=item)
                 if st.button("Confirm"):
-                    print(selected_options)
                     st.session_state.history.append({"role": "assistant", "content": question})
                     st.session_state.history.append({"role": "user", "content": "Columns  selected: " + display_list([item for item,value in selected_options.items() if value == True])}) 
                     config = {"configurable": {"thread_id": st.session_state.session_id}}
@@ -474,8 +469,6 @@ with center_container:
                     next_message["options"] = json.loads(interrupt_payload["struct"][next_message["node_name"]])
                 st.session_state.step += 1
                 st.rerun()
-        # elif message_type == "test":
-        #     st.markdown("![Correlation Matrix](app/static/correlation_matrix.png)")
 
         elif message_type == "download":
             with st.chat_message("assistant"):
@@ -563,7 +556,6 @@ with center_container:
                             print("new_message type is something else; loading options from struct")
                             new_message["options"] = json.loads(interrupt_payload["struct"][new_message["node_name"]])
                             log_event(logger, logging.INFO, "Set options via generic struct/json.loads", extra={"options": new_message["options"]})
-                        print("Rerunning Streamlit (st.rerun)")
                         log_event(logger, logging.INFO, "Calling st.rerun() after retrain pathway")
                         st.session_state.go_back = False
                         st.rerun()

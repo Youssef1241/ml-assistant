@@ -18,15 +18,6 @@ def null_handling(state):
 
     state["df_info"].update(load_df_fromdf(df, state['df_info']['target']))
 
-    import pickle
-    pickle.dump(logs, open("pickles/null_handling.pkl", "wb"))
-    pickle.dump(df.isnull().sum(), open(f"pickles/null_count_after_null_handling.pkl", "wb"))
-
-    return state
-
-def after_null_handling(state):
-    import pickle 
-    pickle.dump(state, open("pickles/after_null_handling.pkl", "wb"))
     return state
 
 def update_nulls(state, df):

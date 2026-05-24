@@ -6,8 +6,6 @@ from helpers import create_model_instance
 import time
 import logging
 from logging_utils import get_logger, log_event
-from helpers import use_persistent
-load_dotenv()
 logger = get_logger(__name__)
 
 def reporter_call(state: dict, config: RunnableConfig):
@@ -34,25 +32,7 @@ def reporter_call(state: dict, config: RunnableConfig):
                         - Use markdown for good stylization and professional language
 
                         """)
-        # SystemMessage(
-        #     content=context + """
-        #             You are an expert data scientist and handler tasked with recommending actions to a user
-        #             Your instructions: 
-        #                 - The context provides model specs and their evaluation metrics. Recommend the most promising model for the user to choose
-
-        #                 - The model specs will be in the slug format: scaling_method-model-imbalance_handling_method, in this order
-
-        #                 - You will create a small comparison report for the user for the three models, and their performances
-        #                 - MAKE IT A VERY SHORT REPORT SINCE THIS IS A TESTING PHASE TO AVOID COST
-
-
-        #                 - Use markdown for good stylization and professional language
-
-        #                 """
-        # )
     ] 
-    import pickle
-    pickle.dump(messages_to_send, open(f"pickles/eval_report_messages.pkl", "wb"))
     started_at = time.perf_counter()
     model = create_model_instance(state["model_info"])
     result = None
@@ -63,12 +43,9 @@ def reporter_call(state: dict, config: RunnableConfig):
     if not streamed:
         # Safety fallback so downstream logic never receives None.
         result = model.invoke(messages_to_send)
-    # result = use_persistent(model,"reporter_call_results.pkl", messages_to_send)
-
 
     log_event(logger,logging.INFO,"Reporter call complete",elapsed_ms=int((time.perf_counter() - started_at) * 1000),)
     
-    # result = use_persistent(model_with_tools,"analyst_call_reult.pkl", messages_to_send)
     return {
         "messages": [result],
     }
@@ -76,8 +53,6 @@ def reporter_call(state: dict, config: RunnableConfig):
 def ask_user(state: dict):
     """ Ask the user for their choice """
     log_event(logger, logging.INFO, "Asking user to choose model")
-    import pickle
-    pickle.dump(state, open("pickles/reporter_call_state.pkl", "wb"))
     user_choice = interrupt({"struct": state['update']['model_metrics']})
     state_dict = state["user_choice"]
     if type(user_choice) == str:

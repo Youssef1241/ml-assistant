@@ -37,9 +37,7 @@ def analyst_call(state: dict, config: RunnableConfig):
         streamed = True
         result = chunk if result is None else result + chunk
     if not streamed:
-        # Safety fallback so downstream logic never receives None.
         result = model_with_tools.invoke(messages_to_send)
-    # result = use_persistent(model_with_tools,"analyst_call_results.pkl", messages_to_send)
     elapsed_ms = int((time.perf_counter() - started_at) * 1000)
     log_event(
         logger,
@@ -50,6 +48,5 @@ def analyst_call(state: dict, config: RunnableConfig):
     )
     return {
         "messages": [result],
-        # "messages": [result['messages'][4]],
         "llm_calls": state.get('llm_calls', 0) + 1,
     }
