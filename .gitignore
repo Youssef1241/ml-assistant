@@ -4,7 +4,6 @@ that.command
 test.py
 .directory
 report.md
-images
 datasets
 /__pycache__/
 *.pyc

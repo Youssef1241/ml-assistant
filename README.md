@@ -9,8 +9,25 @@ LLM guided machine learning helps the user analyze datasets and develop well per
 - Uses LLM-guided preprocessing decisions, such as encoding methods, skew handling, and dataset scaling
 - Handles class imbalance
 - Provides an evaluation report, including visualizations
-- Provides a downloadable markdown report of the entire process from analysis to evaluation
+- Provides a downloadable markdown report of the entire process from analysis to evaluation (see apistox_dataset_report.md for an example)
 - Creates a downloadable .pkl file of the pipeline used for inference
+
+## Screenshots
+EDA Report
+![EDA Report](images/eda.png)
+
+Metrics Selection
+![Metric Selection](images/metric.png)
+
+Hyperparameter Selection
+![HP Selection](images/hps.png)
+
+Moel Comparison Bar Chart
+![Metrics Comparison](images/bar_chart.png)
+
+Downloadable Report and Model
+![Final Download](images/buttons.png)
+
 
 ## How It Is Different
 Other machine learning automation systems use brute-force, which is often time-consuming and hardware-intensive. The advantage of this system is that it uses LLM guided assistance to provide data-informed decisions and create ready-made deployable pipelines.
