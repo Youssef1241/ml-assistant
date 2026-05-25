@@ -1,6 +1,8 @@
 # LLM-Guided Machine Learning Classification Pipeline
 _by Youssef Tarek_
 
+[Streamlit App](https://ml-assistant-4dpwztthr2zdsfoanadwsz.streamlit.app/)
+
 LLM guided machine learning helps the user analyze datasets and develop well performing models, with little effort or domain knowledge. The agent provides insights on the data, suggesting the optimal design decisions for the user to approve. The process evaluates several model combinations, to find the best-performing model on a given dataset.
 
 ## Features
