@@ -10,233 +10,6 @@ from config.config_dicts.null_handler import null_handler_config
 
 logger = get_logger(__name__)
 
-def saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/model.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def null_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/null.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def metric_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/metric.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def model_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/model.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def encoding_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/encoding.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def skew_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/skew.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def scaling_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/scaling.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def imbalance_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/imbalance.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def allto6_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/allto6.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def hp_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/hp.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-# def train_saver(state):
-#     import pickle
-#     log_event(logger, logging.INFO, "Saving results snapshot")
-#     with open("pickles/train.pkl", "wb") as f:
-#         pickle.dump(state, f)
-#     return state
-
-def sixto3_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/sixto3.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def train_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/train.pkl", "wb") as f:
-        pickle.dump(state, f)
-    return state
-
-def train_full_data_saver(state):
-    import pickle
-    log_event(logger, logging.INFO, "Saving results snapshot")
-    with open("pickles/train_full_data.pkl", "wb") as f:
-        pickle.dump(state, f)
-
-
-def load_null(state):
-    import pickle
-    with open("pickles/null.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    interrupt_payload = interrupt({"struct": loaded_state['struct']})
-
-    return {
-        "user_choice": {"null_columns": interrupt_payload},
-        "subgraph": 0,
-    }
-
-def load_metric(state):
-    import pickle
-    with open("pickles/metric.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    interrupt_payload = interrupt({"struct": loaded_state['struct']})
-
-    return {
-        "user_choice": {"metrics": interrupt_payload},
-        "subgraph": 0,
-    }
-
-def load_model(state):
-    import pickle
-    with open("pickles/model.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    interrupt_payload = interrupt({"struct": loaded_state['struct']})
-
-    return {
-        "user_choice": {"models": interrupt_payload},
-        "subgraph": 0,
-    }
-
-def load_encoding(state):
-    import pickle
-    with open("pickles/encoding.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    interrupt_payload = interrupt({"struct": loaded_state['struct']})
-
-    return {
-        "user_choice": {"encoding": interrupt_payload},
-        "subgraph": 0,
-    }
-
-def load_skew(state):
-    import pickle
-    with open("pickles/skew.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    interrupt_payload = interrupt({"struct": loaded_state['struct']})
-
-    return {
-        "user_choice": {"skew": interrupt_payload},
-        "subgraph": 0,
-    }
-
-def load_scaling(state):
-    import pickle
-    with open("pickles/scaling.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    interrupt_payload = interrupt({"struct": loaded_state['struct']})
-
-    return {
-        "user_choice": {"scaling": interrupt_payload},
-        "subgraph": 0,
-    }
-
-def load_imbalance(state):
-    import pickle
-    with open("pickles/imbalance.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    interrupt_payload = interrupt({"struct": loaded_state['struct']})
-
-    return {
-        "user_choice": {"imbalance_methods": interrupt_payload},
-        "subgraph": 0,
-    }
-
-def load_allto6(state):
-    import pickle
-    with open("pickles/allto6.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    interrupt_payload = interrupt({"struct": loaded_state['struct']})
-
-    return {
-        "user_choice": {"filter": interrupt_payload},
-        "subgraph": 0,
-    }
-
-
-def load_hp(state):
-    import pickle
-    with open("pickles/hp.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    interrupt_payload = interrupt({"struct": loaded_state['struct']})
-
-    return {
-        "user_choice": {"hp": interrupt_payload},
-        "subgraph": 0,
-    }
-
-def load_train(state):
-    import pickle
-    with open("pickles/train.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    return {
-        "update": loaded_state['update'],
-        "pipeline": loaded_state['pipeline'],
-    }
-
-def load_6to3(state):
-    import pickle
-    with open("pickles/sixto3.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    interrupt_payload = interrupt({"struct": loaded_state['struct']})
-
-    return {
-        "user_choice": {"final": interrupt_payload},
-        "subgraph": 0,
-    }
-
-def load_train_full_data(state):
-    import pickle
-    with open("pickles/train_full_data.pkl", "rb") as f:
-        loaded_state = pickle.load(f)
-    return {
-        "update": loaded_state['update'],
-        "pipeline": loaded_state['pipeline'],
-    }
-
 def build_hitl_subgraph(config: dict, orderlist: list):
     from helpers import create_model_instance
     node_dict= {"analysis": 0, "struct": 0, "interrupt": 0, "update": 0}
@@ -381,19 +154,6 @@ sampling_subgraph = build_hitl_subgraph(sampling_config, ['interrupt'])
 
 agent_builder.add_node("analyst", analyst_call)
 agent_builder.add_node("analyst_tools", analyst_tool_node)
-# agent_builder.add_node("df info",load_df)
-# agent_builder.add_node("null", null_subgraph)
-# agent_builder.add_node("metric", metric_subgraph)
-# agent_builder.add_node("model", model_subgraph)
-# agent_builder.add_node("encoding", encoding_subgraph)
-# agent_builder.add_node("skew", skew_subgraph)
-# agent_builder.add_node("scaling", scaling_subgraph)
-# agent_builder.add_node("imbalance", imbalance_subgraph)
-# agent_builder.add_node("allto6", filter_subgraph)
-# agent_builder.add_node("hp", hp_subgraph)
-# agent_builder.add_node("sampling", sampling_subgraph)
-# agent_builder.add_node("train", train_and_test)
-# agent_builder.add_node("6to3", final_subgraph)
 
 agent_builder.add_node("df info",load_df)
 agent_builder.add_node("null", null_subgraph)
@@ -415,18 +175,7 @@ agent_builder.add_node('interrupt', ask_user)
 agent_builder.add_node("create pipeline", create_pipeline)
 agent_builder.add_node("final report", report_generator)
 agent_builder.add_node("train_full_data", train_and_test)
-# agent_builder.add_node("saver", saver)
-# agent_builder.add_node("scaling saver", scaling_saver) 
-# agent_builder.add_node("imbalance saver", imbalance_saver)
-# agent_builder.add_node("allto6 saver", allto6_saver)
-# agent_builder.add_node("hp saver", hp_saver)
-# agent_builder.add_node("train saver", train_saver)
-# agent_builder.add_node("6to3 saver", sixto3_saver)
-# agent_builder.add_node("train full saver", train_full_data_saver)
-# agent_builder.add_node("scaling saver", scaling_saver)
-# agent_builder.add_node("null saver", null_saver)
-# agent_builder.add_node("train saver", train_saver)
-agent_builder.add_node("skew saver", skew_saver)
+
 agent_builder.add_node("null_handling", null_handling)
 agent_builder.add_node("skew_handling", skew_handling)
 agent_builder.add_node("after_null_handling", after_null_handling)
@@ -463,8 +212,7 @@ agent_builder.add_edge("metric", "model")
 agent_builder.add_edge("model", "encoding")
 agent_builder.add_edge("encoding", "skew")
 agent_builder.add_edge("skew", "skew_handling")
-agent_builder.add_edge("skew_handling", "skew saver")
-agent_builder.add_edge("skew saver","scaling")
+agent_builder.add_edge("skew_handling", "scaling")
 # agent_builder.add_conditional_edges(
 #     "scaling",
 #     route_imbalance,
@@ -499,23 +247,6 @@ agent_builder.add_conditional_edges(
 agent_builder.add_edge("create pipeline", "final report")
 agent_builder.add_edge("final report", END)
 
-
-
-# agent_builder.add_edge("hp", "train")
-# agent_builder.add_edge("train", "6to3")
-# agent_builder.add_edge("6to3", "train")
-# agent_builder.add_edge("train", "train saver")
-# agent_builder.add_edge("train saver", "eval report")
-# agent_builder.add_edge("eval report", "interrupt")
-# agent_builder.add_edge("interrupt", "create pipeline")
-# agent_builder.add_edge("create pipeline", "final report")
-# agent_builder.add_edge("final report", END)
-
-# edge_list = ["df info", "analyst", "null", "null_handling", "after_null_handling", "metric", "model", "encoding", "skew", "sampling", "skew_handling", "scaling", "imbalance", "allto6", "hp", "train", "train saver", "6to3", "train_full_data", "train full saver", "interrupt", "eval report", "interrupt", "create pipeline", "final report"]
-
-# for i,node in enumerate(edge_list):
-#     agent_builder.add_edge(START, node) if i == 0 else agent_builder.add_edge(edge_list[i-1],node)
-# agent_builder.add_edge(edge_list[-1],END)
 
 
 checkpointer = InMemorySaver()
