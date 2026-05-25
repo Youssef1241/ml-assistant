@@ -12,7 +12,6 @@ pickles
 simple_test.ipynb
 test.json
 pipeline
-*.md
 *.pkl
 *.ipynb
 streaming_test.py
@@ -20,3 +19,6 @@ demo.py
 messagesjsonwithexamples.json
 static
 run.sh
+report_final.md
+test.md
+report (1).md
