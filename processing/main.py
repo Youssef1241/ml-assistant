@@ -1,8 +1,10 @@
+import os
 import pickle
+import joblib
+import logging
 import numpy as np
 import pandas as pd
 import seaborn as sns
-import logging
 from typing import Any
 import lightgbm as lgb
 from sklearn.svm import SVC
@@ -13,16 +15,14 @@ from joblib import Parallel, delayed
 from sklearn.pipeline import Pipeline
 from sklearn.impute import SimpleImputer
 from processing.null_handling import update_nulls
-from processing.encoding_handling import combinations_config
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 from processing.encoding_handling import safe_filename
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, roc_curve
-from logging_utils import get_logger, log_event, log_values_with_types
 from processing.inference_pipeline import InferencePipeline
-import os
-import joblib
+from processing.encoding_handling import combinations_config
+from logging_utils import get_logger, log_event, log_values_with_types
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, roc_auc_score, confusion_matrix, roc_curve
 
 logger = get_logger(__name__)
 
@@ -48,7 +48,6 @@ def train_and_test(state: dict):
     log_event(logger, logging.INFO, "train_and_test start")
     inference_pipeline = state['pipeline']
     user_choice = state['user_choice']
-    # full_data = True if user_choice.get("final", None) != None else False
     if user_choice.get("final", None) != None and user_choice.get("retrain",None) == None:
         full_data = True
     else:
@@ -69,15 +68,14 @@ def train_and_test(state: dict):
         model_combinations = user_choice['filter']['filter']
         dfs_list, inference_pipeline = preprocess(state, user_choice, model_combinations, inference_pipeline, full_data)
         inference_pipeline = {}
-    pickle.dump(dfs_list, open(f"pickles/dfs_list.pkl", "wb"))
     trained = Parallel(n_jobs=-1)(delayed(train)(item['model'],item['data'], item["slug"], metrics) for item in dfs_list)
     trained_metrics = [item[0] for item in trained]
     if full_data:
-        os.makedirs(f"pipeline/models", exist_ok=True)
+        os.makedirs(f"/tmp/pipeline/models", exist_ok=True)
         inference_pipeline['model'] = {}
         for item in trained:
             model = item[1]
-            path = f"pipeline/models/{safe_filename(item[0]['slug'])}.pkl"
+            path = f"/tmp/pipeline/models/{safe_filename(item[0]['slug'])}.pkl"
             with open(path, "wb") as f:
                 pickle.dump(model, f)
             inference_pipeline['model'][item[0]['slug']] = path
@@ -100,10 +98,10 @@ def preprocess(state: dict, user_choice: dict, model_combinations: list, inferen
         imputer = SimpleImputer(strategy='most_frequent')
         imputer.fit(Xtrain)
         imputer_cols = Xtrain.columns.tolist()
-        os.makedirs("pipeline", exist_ok=True)
-        pickle.dump(imputer_cols, open('pipeline/imputer_cols.pkl', 'wb'))
-        path = "pipeline/imputer.pkl"
-        os.makedirs("pipeline", exist_ok=True)
+        os.makedirs("/tmp/pipeline", exist_ok=True)
+        pickle.dump(imputer_cols, open('/tmp/pipeline/imputer_cols.pkl', 'wb'))
+        path = "/tmp/pipeline/imputer.pkl"
+        os.makedirs("/tmp/pipeline", exist_ok=True)
         with open(path, "wb") as f:
             pickle.dump(imputer, f)
         inference_pipeline['imputer'] = path
@@ -201,7 +199,6 @@ def create_visualizations(state, df, trained):
 
 def create_pipeline(state: dict):
     inference_pipeline = state['pipeline']
-    pickle.dump(inference_pipeline, open(f"pickles/temp_pipe.pkl", "wb"))
     chosen_model = state['user_choice']['chooseone']['chooseone']
     classes_dict = {}
     for item, value in inference_pipeline.items():
@@ -223,7 +220,7 @@ def create_pipeline(state: dict):
         elif item == 'model':
             path = value[chosen_model]
             classes_dict[item] = pickle.load(open(path, "rb"))
-    classes_dict['imputer_cols'] = pickle.load(open('pipeline/imputer_cols.pkl', 'rb'))
+    classes_dict['imputer_cols'] = pickle.load(open('/tmp/pipeline/imputer_cols.pkl', 'rb'))
     pipe = InferencePipeline(**classes_dict)
     joblib.dump(pipe, '/tmp/pipeline.pkl')
     return state

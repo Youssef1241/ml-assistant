@@ -1,4 +1,4 @@
-from config.model import Options, Prompts, FullPayload
+from config.model import FullPayload
 
 
 models_config = {

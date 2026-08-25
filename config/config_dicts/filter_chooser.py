@@ -17,9 +17,6 @@ def create_models_dict(state: dict):
     spec_names = ['scaling','model','imbalance_method']
     models_dict =  [dict(zip(spec_names,item)) for item in models_list ]
     struct[output_name] = models_dict
-    with open("pickles/create_models_dict.pkl", "wb") as f:
-        import pickle
-        pickle.dump(state, f)
     return {"struct": struct}
 
 filter_config = {

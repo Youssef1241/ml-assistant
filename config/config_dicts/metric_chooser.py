@@ -1,39 +1,5 @@
 from config.model import FullPayload
 
-
-
-# def get_data_context(state) -> str:
-#     output_string = ""
-    
-#     df = state['df_info']
-#     import pickle
-#     with open("pickles/metrics.pkl", "wb") as f:
-#         pickle.dump(state, f)  
-    
-#     per_class = {
-#     cls: {
-#         "count": cnt,
-#         "pct": round(cnt / sum(df['class_dist'].values()) * 100,2)
-#     }
-#     for cls, cnt in df['class_dist'].items()
-#     }
-    
-#     output_string += "Classes Data: \n" + str(per_class)
-#     output_string += "\nSample Data: \n\n"
-#     output_string += str(df['head'])
-#     output_string += "\n\n"
-#     output_string += "\nData description: \n\n"
-#     for key in ['n_rows', 'n_cols', 'numeric_features', 'categorical_features', 'all_stats']:
-#         if key in df:
-#             output_string += f"{key}: {df[key]}\n"
-#     output_string += "\n\n"
-#     output_string += "Imbalance Ratio: " + str(df["imbalance_ratio"])
-    
-#     if state.get('data_description', None):
-#         output_string+= "\nDataset Description" + str(state['data_description']) + '\n\n'
-    
-#     return output_string
-
 metrics_config = {
     "struct": 
     [{

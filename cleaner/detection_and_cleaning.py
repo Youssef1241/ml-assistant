@@ -13,16 +13,6 @@ def make_report(state: dict) -> str:
         "df_info": df_info,
         }
     
-# def find_issues(df: pd.DataFrame) -> dict:
-#     """Find issues in the data and return a dictionary of the issues"""
-#     issues = {}
-#     def report_duplicates(df):
-#         total = len(df)
-#         n_exact = df.duplicated().sum()
-#         pct = (n_exact / total) * 100
-#         return "Total duplicates: " + str(n_exact) + " (" + str(pct) + "%)"
-#     issues["duplicates"] = report_duplicates(df)
-#     return issues
 
 KNOWN_NUMERIC_SENTINELS = {-1, 999, 9999, -9999, 99, -99, 999999, -999999, 9999999}
 KNOWN_STRING_SENTINELS = {
@@ -232,20 +222,3 @@ def detect_type_issues(df, sample_threshold=0.85):
             }
 
     return issues
-
-# def apply_replacements(df, approved):
-#     """Replaces approved sentinel values with NaN."""
-#     df_clean = df.copy()
-#     total_replaced = 0
-
-#     for col, values in approved.items():
-#         before = df_clean[col].isna().sum()
-#         df_clean[col] = df_clean[col].replace(values, np.nan)
-#         after = df_clean[col].isna().sum()
-#         replaced = after - before
-#         total_replaced += replaced
-#         print(f"  🔄 '{col}': {replaced} value(s) replaced with NaN")
-
-#     print(f"\n✅ Done. Total replacements: {total_replaced}")
-#     return df_clean
-

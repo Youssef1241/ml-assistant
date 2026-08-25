@@ -44,15 +44,12 @@ def safe_filename(col):
 
 def handle_encoding(choices_tuple, Xtrain, Xtest, ytrain, ytest, inference_pipeline, full_data = None):
     choices_dict = choices_tuple[0]
-    pickle.dump(inference_pipeline, open(f"pickles/handle_encoding.pkl", "wb"))
     log_event(logger, logging.INFO, "handle_encoding start", methods=choices_dict)
     inference_pipeline['encoders'] = {}
     for method in choices_dict:
         if encoding_config[method]['params'] == {}:
             encoder = encoding_config[method]['encoding-class']()
         else:
-            # if method == "target-encoding":
-            #     encoding_config[method]['params']['y'] = Xtrain[choices_tuple[1]]
             encoder = encoding_config[method]['encoding-class'](**encoding_config[method]['params'])
         inference_pipeline['encoders'][method] = {}
         for col in choices_dict[method]:
@@ -74,8 +71,8 @@ def handle_encoding(choices_tuple, Xtrain, Xtest, ytrain, ytest, inference_pipel
                 Xtrain[col] = encoder.fit_transform(Xtrain[[col]])
                 Xtest[col] = encoder.transform(Xtest[[col]])
             if full_data:
-                path = f"pipeline/encoding/{method}/{safe_filename(col)}.pkl"
-                os.makedirs(f"pipeline/encoding/{method}", exist_ok=True)
+                path = f"/tmp/pipeline/encoding/{method}/{safe_filename(col)}.pkl"
+                os.makedirs(f"/tmp/pipeline/encoding/{method}", exist_ok=True)
                 with open(path, "wb") as f:
                     pickle.dump(encoder, f)
                 inference_pipeline['encoders'][method][col] = path
@@ -91,8 +88,8 @@ def handle_skew(choices_tuple, Xtrain, Xtest, ytrain, ytest, inference_pipeline,
         Xtrain[col] = pt.fit_transform(Xtrain[[col]])
         Xtest[col] = pt.transform(Xtest[[col]])
         if full_data:
-            path = f"pipeline/skew/{safe_filename(col)}.pkl"
-            os.makedirs(f"pipeline/skew", exist_ok=True)
+            path = f"/tmp/pipeline/skew/{safe_filename(col)}.pkl"
+            os.makedirs(f"/tmp/pipeline/skew", exist_ok=True)
             with open(path, "wb") as f:
                 pickle.dump(pt, f)
             inference_pipeline['skew_transformers'][col] = path
@@ -106,8 +103,8 @@ def handle_scaling(Xtrain, Xtest, ytrain, ytest, method, df_info, inference_pipe
     scaler = scaling_config[method]["scaling-class"]()
     Xtrain = scaler.fit_transform(Xtrain)
     Xtest = scaler.transform(Xtest)
-    path = f"pipeline/scaling/{slug}.pkl"
-    os.makedirs(f"pipeline/scaling", exist_ok=True)
+    path = f"/tmp/pipeline/scaling/{slug}.pkl"
+    os.makedirs(f"/tmp/pipeline/scaling", exist_ok=True)
     with open(path, "wb") as f:
         pickle.dump(scaler, f)
     if 'scaler' in inference_pipeline:
