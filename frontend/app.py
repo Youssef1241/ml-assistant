@@ -608,8 +608,9 @@ with center_container:
                     deployment = st.text_input("Enter your Azure Deployment Name e.g. my-gpt4o-deployment")
                     api_version = st.text_input("Enter the API version e.g. 2024-02-01")
                 else:
-                    key = st.text_input("Enter your API key")
-                    model_name = st.text_input("Enter your model name")
+                    st.markdown("***For now, only Mistral API is supported.**")
+                    key = st.text_input("Enter your Mistral API key")
+                    model_name = st.text_input("Enter your Mistral model name")
 
                 if st.button("Confirm"):
                     st.session_state.key = key
@@ -622,11 +623,13 @@ with center_container:
                     st.session_state.step += 1
                     st.rerun()
 
-            if "choice" not in st.session_state:
-                st.session_state.choice = None
-                choose_model()
-            else:
-                set_key()
+            # if "choice" not in st.session_state:
+            #     st.session_state.choice = "MistralAI"
+            #     # choose_model()
+
+            # else:
+            st.session_state.choice = "MistralAI"
+            set_key()
 
         elif message_type == "cleaning":
             options = current_message["options"]['actions']
